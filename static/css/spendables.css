@@ -1351,7 +1351,92 @@ a.list-item:hover {
   border-width: 0; /* Ensures the border fades too */
 }
 
-/* The old dropdown-style mobile navigation rules have been removed in favor of the superior slide-in panel implementation. */
+/* [C] Hamburger Menu (A proper animated component) */
+.hamburger-btn {
+  display: none; /* Hidden on desktop */
+  width: 44px;
+  height: 44px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: var(--space-sm);
+  position: relative; /* For z-index stacking */
+  z-index: 2010; /* Ensure it's above other elements */
+}
+.hamburger-btn span {
+  display: block;
+  width: 24px;
+  height: 3px;
+  background: var(--c-dark);
+  margin: 5px auto;
+  transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+  border-radius: 3px;
+}
+/* Animation for when the menu is active (toggled via JS) */
+.hamburger-btn.is-active span:nth-child(1) {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+.hamburger-btn.is-active span:nth-child(2) {
+  opacity: 0;
+}
+.hamburger-btn.is-active span:nth-child(3) {
+  transform: rotate(-45deg) translate(6px, -6px);
+}
+
+/* [JS] Mobile Navigation (Enhanced slide-in panel) */
+@media (max-width: 992px) { /* Use a wider breakpoint for nav collapse */
+    .nav-links {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: min(400px, 90vw);
+        height: 100%;
+        background-color: var(--c-surface);
+        flex-direction: column;
+        align-items: flex-start;
+        padding: var(--space-2xl) var(--space-xl);
+        box-shadow: var(--shadow-lg);
+        border-left: 1px solid var(--c-border);
+        transform: translateX(100%);
+        visibility: hidden;
+        transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), visibility 0.4s;
+        z-index: 2000;
+    }
+
+    .nav-links.is-active {
+        transform: translateX(0);
+        visibility: visible;
+    }
+
+    .nav-links a {
+        padding: var(--space-md) 0;
+        text-align: left;
+        width: 100%;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--c-dark);
+        border-bottom: 1px solid var(--c-border);
+    }
+    .nav-links .header-icon-group {
+        display: none;
+    }
+
+   .nav-links .btn {
+        margin-top: auto;
+        width: 100%;
+        text-align: center;
+        padding: var(--space-md) 0;
+        font-size: 1.1rem;
+    }
+
+    .hamburger-btn {
+        display: block;
+    }
+
+    .app-nav .nav-links {
+        display: none;
+    }
+}
 
 /* [C] Authentication Layout & Components */
 .auth-layout {

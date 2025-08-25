@@ -403,114 +403,112 @@ def get_or_create_session(customer_id, agent_id=None):
     db.session.commit()
     return session
 
-# --- SOCKET.IO EVENT HANDLERS ---
+# --- REBUILT SOCKET.IO EVENT HANDLERS ---
+
+def get_or_create_chat_session(customer_id, agent_id=None):
+    """
+    Finds the single, persistent chat session for a customer, or creates one if it doesn't exist.
+    This is the cornerstone of fixing the chat persistence issue.
+    """
+    session = ChatSession.query.filter_by(customer_id=customer_id).first()
+    if not session:
+        session = ChatSession(customer_id=customer_id, agent_id=agent_id, status='open')
+        db.session.add(session)
+        db.session.commit() # Commit immediately to ensure session ID is available
+    elif agent_id and not session.agent_id:
+        session.agent_id = agent_id
+        session.status = 'active'
+        db.session.commit()
+    return session
 
 @socketio.on('connect')
+@login_required
 def handle_connect():
-    if current_user.is_anonymous:
-        return False # Reject connection
-    
-    # All authenticated users join a private room named after their ID
+    """Handles new socket connections and assigns users to appropriate rooms."""
     join_room(str(current_user.id))
-    
-    # If the user is an admin, they also join the general 'admins' room
     if current_user.is_admin:
         join_room('admins')
-    
-    print(f"Client connected: {current_user.username}, Room: {current_user.id}")
+    print(f"SocketIO Client connected: {current_user.username} in rooms {list(socketio.server.rooms(request.sid))}")
 
 @socketio.on('disconnect')
+@login_required
 def handle_disconnect():
-    # Leave rooms automatically on disconnect, no action needed for basic case
-    if current_user.is_authenticated:
-        print(f"Client disconnected: {current_user.username}")
+    """Handles socket disconnections."""
+    print(f"SocketIO Client disconnected: {current_user.username}")
 
-# [FROM CUSTOMER] A customer sends a message.
 @socketio.on('send_message')
+@login_required
 def handle_send_message(data):
-    if current_user.is_anonymous: return
-    
-    session = get_or_create_session(customer_id=current_user.id)
-    new_message = ChatMessage(session=session, sender_id=current_user.id, message_text=data['message'])
+    """Handles messages sent FROM a customer TO an admin."""
+    message_text = data.get('message')
+    if not message_text:
+        return
+
+    session = get_or_create_chat_session(customer_id=current_user.id)
+    new_message = ChatMessage(session_id=session.id, sender_id=current_user.id, message_text=message_text)
     db.session.add(new_message)
     db.session.commit()
     
-    # Notify ALL online agents in the 'admins' room about this new message.
+    # Notify all online agents in the 'admins' room.
     emit('receive_message', {
         'message': new_message.message_text,
         'sender_type': 'user',
         'session_id': session.id,
         'timestamp': new_message.timestamp.strftime('%I:%M %p')
-    }, room='admins')
+    }, to='admins')
 
-# [FROM AGENT] An agent sends a message.
 @socketio.on('agent_send_message')
+@login_required
 def handle_agent_send_message(data):
-    if not current_user.is_authenticated or not current_user.is_admin: return
+    """Handles messages sent FROM an admin TO a customer."""
+    if not current_user.is_admin:
+        return
 
     customer_id = data.get('customer_id')
-    session_id = data.get('session_id')
-    is_new_session = not session_id
+    message_text = data.get('message')
+    if not customer_id or not message_text:
+        return
 
-    # Get or create the session.
-    session = get_or_create_session(customer_id=customer_id, agent_id=current_user.id)
-
-    # Create and save the message
-    new_message = ChatMessage(session=session, sender_id=current_user.id, message_text=data['message'])
+    session = get_or_create_chat_session(customer_id=customer_id, agent_id=current_user.id)
+    new_message = ChatMessage(session_id=session.id, sender_id=current_user.id, message_text=message_text)
     db.session.add(new_message)
     db.session.commit()
 
-    # If this was a new session, send the new session ID back to the admin client
-    if is_new_session:
-        emit('receive_session_id', {'session_id': session.id}, room=request.sid)
-
-    # Send the message to the customer's private room.
+    # Emit the message directly to the customer's private room.
     emit('receive_message', {
         'message': new_message.message_text,
         'sender_type': 'agent',
         'session_id': session.id,
         'timestamp': new_message.timestamp.strftime('%I:%M %p')
-    }, room=str(customer_id))
+    }, to=str(customer_id))
 
-# [FROM CUSTOMER] A customer opens their chat window.
 @socketio.on('request_history')
-def handle_request_history():
-    if current_user.is_anonymous: return
-    
-    session = get_or_create_session(customer_id=current_user.id)
-    messages = ChatMessage.query.filter_by(session_id=session.id).order_by(ChatMessage.timestamp).all()
-    history = [{
-        'message_text': msg.message_text,
-        'sender_type': 'agent' if msg.sender.is_admin else 'user',
-        'timestamp': msg.timestamp.strftime('%I:%M %p')
-    } for msg in messages]
-    
-    # Send history only to the user who requested it
-    emit('chat_history', {'history': history})
+@login_required
+def handle_request_history(data={}):
+    """
+    Handles a request for chat history from either a customer or an agent.
+    Agents must provide a session_id; customers do not.
+    """
+    session = None
+    if current_user.is_admin:
+        session_id = data.get('session_id')
+        if not session_id: return
+        session = ChatSession.query.get(session_id)
+    else:
+        session = get_or_create_chat_session(customer_id=current_user.id)
 
-# [FROM AGENT] An agent clicks on a conversation.
-@socketio.on('agent_request_history')
-def handle_agent_request_history(data):
-    if not current_user.is_authenticated or not current_user.is_admin: return
-    
-    session_id = data.get('session_id')
-    session = ChatSession.query.get(session_id)
-    if not session: return
+    if not session:
+        return
 
-    # Mark the current agent as handling this chat
-    session.agent_id = current_user.id
-    session.status = 'active'
-    db.session.commit()
-
-    messages = ChatMessage.query.filter_by(session_id=session.id).order_by(ChatMessage.timestamp).all()
+    messages = ChatMessage.query.filter_by(session_id=session.id).order_by(ChatMessage.timestamp.asc()).all()
     history = [{
         'message_text': msg.message_text,
         'sender_type': 'agent' if msg.sender.is_admin else 'user',
         'timestamp': msg.timestamp.strftime('%I:%M %p')
     } for msg in messages]
 
-    # Send history only to the agent who requested it
-    emit('chat_history', {'history': history})
+    # Send history only to the specific client that requested it.
+    emit('chat_history', {'history': history}, to=request.sid)
 
 # --- CORE BANKING ROUTES ---
 

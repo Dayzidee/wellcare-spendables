@@ -28,58 +28,56 @@ const App = {
   },
 
   /**
-   * Handles the mobile navigation menu (hamburger).
-   * Toggles 'is-active' classes for the slide-in panel animation.
+   * Handles the mobile navigation menu (hamburger) from scratch.
+   * Toggles 'is-active' classes for a professional slide-in panel.
    */
   mobileNavigation() {
-    const menuTrigger = document.getElementById("mobile-menu-trigger");
-    const navLinks = document.querySelector(".nav-links");
+    const trigger = document.getElementById("mobile-menu-trigger");
+    // IMPORTANT: The element that slides in is the .nav-links container.
+    const panel = document.querySelector(".nav-links");
     const overlay = document.querySelector(".panel-overlay");
 
-    if (!menuTrigger || !navLinks || !overlay) return;
+    if (!trigger || !panel || !overlay) {
+      console.error("Mobile navigation elements not found.");
+      return;
+    }
 
-    const toggleMenu = (forceClose = false) => {
-      const isActive = navLinks.classList.contains("is-active");
-      if (forceClose || isActive) {
-        navLinks.classList.remove("is-active");
-        menuTrigger.classList.remove("is-active");
+    const closeMenu = () => {
+        panel.classList.remove("is-active");
+        trigger.classList.remove("is-active");
         overlay.classList.remove("is-active");
+        trigger.setAttribute("aria-expanded", "false");
         document.body.style.overflow = "";
-        menuTrigger.setAttribute("aria-expanded", "false");
-      } else {
-        navLinks.classList.add("is-active");
-        menuTrigger.classList.add("is-active");
-        overlay.classList.add("is-active");
-        document.body.style.overflow = "hidden";
-        menuTrigger.setAttribute("aria-expanded", "true");
-      }
     };
 
-    menuTrigger.addEventListener("click", (e) => {
-      e.stopPropagation();
-      toggleMenu();
-    });
+    const openMenu = () => {
+        panel.classList.add("is-active");
+        trigger.classList.add("is-active");
+        overlay.classList.add("is-active");
+        trigger.setAttribute("aria-expanded", "true");
+        document.body.style.overflow = "hidden";
+    };
 
-    // Use the overlay to close the menu
-    overlay.addEventListener("click", () => toggleMenu(true));
-
-    // Close menu with the 'Escape' key
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && navLinks.classList.contains("is-active")) {
-        toggleMenu(true);
+    trigger.addEventListener("click", () => {
+      if (panel.classList.contains("is-active")) {
+        closeMenu();
+      } else {
+        openMenu();
       }
     });
 
-    // Add resize handler to auto-close menu on larger screens
-    window.addEventListener("resize", () => {
-      if (window.innerWidth > 992) {
-        toggleMenu(true);
+    // Close conditions
+    overlay.addEventListener("click", closeMenu);
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && panel.classList.contains("is-active")) {
+        closeMenu();
       }
     });
   },
 
   /**
-   * Handles the entire live chat widget functionality.
+   * This function is being rebuilt from scratch.
+   * The old implementation is removed.
    */
   liveChat() {
     const container = document.getElementById("chat-widget-container");
@@ -92,55 +90,22 @@ const App = {
     const chatInput = document.getElementById("chat-input");
     const sendBtn = document.getElementById("chat-send-btn");
 
-    // --- Socket.IO Connection ---
-    // The 'connect' event is fired automatically when the script loads
-    // Make sure to include the Socket.IO client library in base.html
     const socket = io();
 
-    socket.on("connect", () => {
-      console.log("💬 Connected to chat server");
-    });
-
-    // --- UI Toggling (Updated) ---
-    const toggleChatWindow = (forceClose = false) => {
-      const isOpen = chatWindow.classList.contains("is-open");
-      if (forceClose || isOpen) {
-        chatWindow.classList.remove("is-open");
-        toggleBtn.classList.remove("is-active"); // Also toggle button class
-      } else {
-        chatWindow.classList.add("is-open");
-        toggleBtn.classList.add("is-active"); // Also toggle button class
-        socket.emit("request_history");
-      }
-    };
-
-    toggleBtn.addEventListener("click", () => toggleChatWindow());
-    closeBtn.addEventListener("click", () => toggleChatWindow(true));
-
-    // --- Message Handling ---
     const addMessage = (message, sender, timestamp) => {
       const msgDiv = document.createElement("div");
       msgDiv.classList.add("chat-message", `is-${sender}`);
 
       const msgSpan = document.createElement("span");
       msgSpan.textContent = message;
+      msgDiv.appendChild(msgSpan);
 
       const timeSpan = document.createElement("span");
       timeSpan.classList.add("timestamp");
-      timeSpan.textContent =
-        timestamp ||
-        new Date().toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-        });
-
-      msgDiv.appendChild(msgSpan);
+      timeSpan.textContent = timestamp || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       msgDiv.appendChild(timeSpan);
+
       messagesContainer.appendChild(msgDiv);
-
-      messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
-      // Auto-scroll to the bottom
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
     };
 
@@ -148,32 +113,49 @@ const App = {
       const message = chatInput.value.trim();
       if (message) {
         socket.emit("send_message", { message: message });
-        addMessage(message, "user"); // Optimistically add user's own message
+        addMessage(message, "user");
         chatInput.value = "";
       }
     };
 
+    const toggleChatWindow = (isOpen) => {
+      const currentlyOpen = chatWindow.classList.contains("is-open");
+      if (isOpen === currentlyOpen) return;
+
+      if (isOpen) {
+        chatWindow.classList.add("is-open");
+        toggleBtn.classList.add("is-active");
+        socket.emit("request_history");
+      } else {
+        chatWindow.classList.remove("is-open");
+        toggleBtn.classList.remove("is-active");
+      }
+    };
+
+    toggleBtn.addEventListener("click", () => toggleChatWindow(!chatWindow.classList.contains("is-open")));
+    closeBtn.addEventListener("click", () => toggleChatWindow(false));
+
     sendBtn.addEventListener("click", sendMessage);
     chatInput.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") sendMessage();
-    });
-
-    // --- Socket.IO Event Listeners ---
-    socket.on("receive_message", (data) => {
-      if (data.sender_type === "agent") {
-        addMessage(data.message, "agent", data.timestamp);
+      if (e.key === "Enter") {
+        e.preventDefault();
+        sendMessage();
       }
     });
 
-    // Replace the socket.on('chat_history') listener with this
-    socket.on("chat_history", (data) => {
-      messagesContainer.innerHTML = "";
-      // System message doesn't need a timestamp
-      messagesContainer.innerHTML =
-        '<div class="chat-message is-system"><span>Welcome! An agent will be with you shortly.</span></div>';
-      data.history.forEach((msg) => {
-        addMessage(msg.message_text, msg.sender_type, msg.timestamp);
-      });
+    socket.on("connect", () => console.log("💬 Customer connected to chat server."));
+
+    socket.on('receive_message', (data) => {
+        if (data.sender_type === 'agent') {
+            addMessage(data.message, 'agent', data.timestamp);
+        }
+    });
+
+    socket.on('chat_history', (data) => {
+        messagesContainer.innerHTML = '<div class="chat-message is-system"><span>Welcome! An agent will be with you shortly.</span></div>';
+        data.history.forEach(msg => {
+            addMessage(msg.message_text, msg.sender_type, msg.timestamp);
+        });
     });
   },
 
