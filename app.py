@@ -54,6 +54,7 @@ MAX_COMPLETED_TRANSACTIONS_TO_KEEP = 25
 
 # Initialize Flask app
 app = Flask(__name__)
+app.config['TEMPLATES_AUTO_RELOAD'] = True
 
 assets = Environment(app)
 
@@ -331,7 +332,7 @@ def inject_global_vars():
             # This allows us to use the same rendering logic in the template
             welcome_message = {
                 'type': 'welcome_message',
-                'notes': "Welcome to North Secure Bank! Your new account is under a standard review for the first 21 days. During this period, certain transaction limits and feature restrictions may apply. We appreciate your patience as we ensure your account's security.",
+                'notes': "Welcome to Well Care Spendables! Your new account is under a standard review for the first 21 days. During this period, certain transaction limits and feature restrictions may apply. We appreciate your patience as we ensure your account's security.",
                 'timestamp': current_user.date_joined
             }
             # We convert our real transaction objects to dicts to have a common format
@@ -448,14 +449,22 @@ def handle_agent_send_message(data):
     if not current_user.is_authenticated or not current_user.is_admin: return
 
     customer_id = data.get('customer_id')
+    session_id = data.get('session_id')
+    is_new_session = not session_id
+
+    # Get or create the session.
     session = get_or_create_session(customer_id=customer_id, agent_id=current_user.id)
+
+    # Create and save the message
     new_message = ChatMessage(session=session, sender_id=current_user.id, message_text=data['message'])
     db.session.add(new_message)
     db.session.commit()
 
-    # --- THIS IS THE CRITICAL FIX ---
-    # The message is sent ONLY to the customer's private room.
-    # It is NOT sent back to the 'admins' room.
+    # If this was a new session, send the new session ID back to the admin client
+    if is_new_session:
+        emit('receive_session_id', {'session_id': session.id}, room=request.sid)
+
+    # Send the message to the customer's private room.
     emit('receive_message', {
         'message': new_message.message_text,
         'sender_type': 'agent',
@@ -509,6 +518,16 @@ def handle_agent_request_history(data):
 def index():
     # FIX: Use correct template path
     return render_template('home.html')
+
+@app.route('/privacy-policy')
+def privacy_policy():
+    """Renders the privacy policy page."""
+    return render_template('privacy_policy.html')
+
+@app.route('/terms-of-service')
+def terms_of_service():
+    """Renders the terms of service page."""
+    return render_template('terms_of_service.html')
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
