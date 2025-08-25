@@ -1,0 +1,244 @@
+{% extends 'base.html' %} {% block title %}Financial Wellness Simplified{%
+endblock %} {% block meta_description %}Take control of your financial wellness
+with Well Care Spendables. Get clear insights, track your spending, and achieve
+your financial goals with our powerful, easy-to-use tools.{% endblock %} {%
+block content %}
+<!-- ============================ -->
+<!-- 1. HERO SECTION -->
+<!-- ============================ -->
+<section class="section hero-section">
+  <div class="container hero-grid">
+    <div class="hero-content">
+      <span class="hero-eyebrow anim-fade-in-up"
+        >Welcome to Financial Clarity</span
+      >
+      <h1 class="hero-title anim-fade-in-up" data-delay="100">
+        Go Beyond Banking. Achieve
+        <span class="highlight">Financial Wellness</span>.
+      </h1>
+      <p class="hero-subtitle anim-fade-in-up" data-delay="200">
+        Stop guessing, start knowing. Well Care Spendables transforms your
+        financial data into a clear, actionable plan for your future.
+      </p>
+      <div class="hero-buttons anim-fade-in-up" data-delay="300">
+        <a href="{{ url_for('signup') }}" class="btn btn-primary btn-lg">
+          <i class="fas fa-rocket"></i> Start for Free
+        </a>
+        <a href="#features" class="btn btn-outline btn-lg">
+          <i class="fas fa-arrow-down"></i> Explore Features
+        </a>
+      </div>
+    </div>
+    <div class="hero-image-container anim-fade-in" data-delay="250">
+      <img
+        src="{{ url_for('static', filename='images/financial_wellness_hero.svg') }}"
+        alt="Financial Wellness Illustration"
+      />
+    </div>
+  </div>
+</section>
+
+<!-- ============================ -->
+<!-- 2. "AS FEATURED IN" TRUST BAR -->
+<!-- ============================ -->
+<div class="trust-bar">
+  <div class="container">
+    <span>AS SEEN IN</span>
+    <i class="fab fa-y-combinator" title="Y Combinator"></i>
+    <i class="fab fa-product-hunt" title="Product Hunt"></i>
+    <i class="fab fa-hacker-news" title="Hacker News"></i>
+    <i class="fab fa-kickstarter" title="Kickstarter"></i>
+  </div>
+</div>
+
+<!-- ============================ -->
+<!-- 3. FEATURES IN DETAIL (NEW & DESCRIPTIVE) -->
+<!-- ============================ -->
+<section id="features" class="section">
+  <div class="container">
+    <div class="section-header anim-fade-in-up">
+      <h2>The Financial Toolkit You've Been Waiting For</h2>
+      <p>
+        We've built a comprehensive suite of tools designed to work together,
+        giving you a complete and intuitive financial command center.
+      </p>
+    </div>
+
+    <div class="feature-grid">
+      <!-- Feature 1 -->
+      <div class="card card--interactive anim-fade-in-up">
+        <div class="feature-icon icon-accent">
+          <i class="fas fa-chart-pie"></i>
+        </div>
+        <h3 class="feature-title">Smart Analytics</h3>
+        <p class="feature-description">
+          Automatically categorize your spending and see where every dollar goes
+          with beautiful, interactive charts. Identify trends and find new ways
+          to save.
+        </p>
+      </div>
+      <!-- Feature 2 -->
+      <div class="card card--interactive anim-fade-in-up" data-delay="150">
+        <div class="feature-icon icon-warning">
+          <i class="fas fa-bullseye"></i>
+        </div>
+        <h3 class="feature-title">Goal Tracking</h3>
+        <p class="feature-description">
+          Whether it's a vacation, a new car, or a down payment, set your goals
+          and track your progress. We'll help you stay motivated and on track.
+        </p>
+      </div>
+      <!-- Feature 3 -->
+      <div class="card card--interactive anim-fade-in-up" data-delay="300">
+        <div class="feature-icon icon-info">
+          <i class="fas fa-file-invoice-dollar"></i>
+        </div>
+        <h3 class="feature-title">Budget Management</h3>
+        <p class="feature-description">
+          Create realistic budgets that work for your lifestyle. Get timely
+          alerts when you're nearing a limit, so you're always in control.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ -->
+<!-- 4. HOW IT WORKS / PROCESS -->
+<!-- ============================ -->
+<section class="section process-section">
+  <div class="container process-grid">
+    <div class="process-image-container anim-fade-in">
+      <img
+        src="{{ url_for('static', filename='images/gallery-analytics.png') }}"
+        alt="Connect accounts illustration"
+      />
+    </div>
+    <div class="process-content anim-fade-in-up">
+      <span class="eyebrow-text">HOW IT WORKS</span>
+      <h2>From Scattered Data to Actionable Insight</h2>
+      <div class="list">
+        <div class="list-item">
+          <div class="list-item-icon icon-accent">
+            <i class="fas fa-link"></i>
+          </div>
+          <div class="list-item-content">
+            <h4 class="list-item-title">1. Consolidate Your Finances</h4>
+            <p class="list-item-text">
+              Securely link your bank accounts or upload statements. Get a
+              360-degree view of your financial life in one place.
+            </p>
+          </div>
+        </div>
+        <div class="list-item">
+          <div class="list-item-icon icon-accent">
+            <i class="fas fa-magic-sparkles"></i>
+          </div>
+          <div class="list-item-content">
+            <h4 class="list-item-title">2. Let Us Do the Heavy Lifting</h4>
+            <p class="list-item-text">
+              Our intelligent engine automatically categorizes your
+              transactions, identifies recurring bills, and spots unusual
+              spending.
+            </p>
+          </div>
+        </div>
+        <div class="list-item">
+          <div class="list-item-icon icon-accent">
+            <i class="fas fa-lightbulb"></i>
+          </div>
+          <div class="list-item-content">
+            <h4 class="list-item-title">3. Gain Actionable Insights</h4>
+            <p class="list-item-text">
+              Go beyond simple charts. Receive personalized insights and tips to
+              help you save money and reach your goals faster.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================ -->
+<!-- 5. TESTIMONIALS / SOCIAL PROOF -->
+<!-- ============================ -->
+<section class="section testimonials-section">
+  <div class="container">
+    <div class="section-header anim-fade-in-up">
+      <h2>Don't Just Take Our Word For It</h2>
+      <p>
+        See what our users are saying about their journey to financial wellness.
+      </p>
+    </div>
+    <div class="grid grid-cols-3">
+      <div class="testimonial-card anim-fade-in-up">
+        <div class="testimonial-rating">
+          <i class="fas fa-star"></i><i class="fas fa-star"></i
+          ><i class="fas fa-star"></i><i class="fas fa-star"></i
+          ><i class="fas fa-star"></i>
+        </div>
+        <p class="testimonial-quote">
+          "This app is a game-changer. I finally understand my spending habits
+          and feel empowered to make better financial decisions."
+        </p>
+        <div class="testimonial-author">- Sarah J.</div>
+      </div>
+      <!-- More testimonials... -->
+    </div>
+  </div>
+</section>
+
+<!-- ============================ -->
+<!-- 6. FINAL CALL TO ACTION (CTA) -->
+<!-- ============================ -->
+<section class="section cta-section">
+  <div class="container cta-content">
+    <h2 class="anim-fade-in-up">Ready to Transform Your Finances?</h2>
+    <p class="anim-fade-in-up" data-delay="150">
+      Join thousands of users who are building a brighter financial future. Your
+      journey to clarity and confidence starts now.
+    </p>
+    <a
+      href="{{ url_for('signup') }}"
+      class="btn btn-primary btn-lg anim-fade-in-up"
+      data-delay="300"
+    >
+      <i class="fas fa-user-plus"></i> Open Your Free Account
+    </a>
+  </div>
+</section>
+{% endblock %} {% block extra_js %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const animatedElements = document.querySelectorAll(
+      ".anim-fade-in-up, .anim-fade-in"
+    );
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const delay = parseInt(entry.target.dataset.delay) || 0;
+            setTimeout(() => {
+              entry.target.classList.add("is-visible");
+            }, delay);
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+    animatedElements.forEach((el) => observer.observe(el));
+
+    // Smooth scroll for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
+      anchor.addEventListener("click", function (e) {
+        e.preventDefault();
+        document
+          .querySelector(this.getAttribute("href"))
+          .scrollIntoView({ behavior: "smooth" });
+      });
+    });
+  });
+</script>
+{% endblock %}

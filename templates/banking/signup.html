@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% block title %}Create Your Account{% endblock %}
+
+{% block content %}
+<div class="auth-layout">
+    <div class="container">
+        <div class="card auth-card anim-fade-in-up">
+            
+            <header class="auth-header">
+                <a href="{{ url_for('index') }}" class="auth-logo">
+                    <i class="fas fa-leaf"></i>
+                </a>
+                <h2>Create Your Account</h2>
+                <p>Join Well Care Spendables and start your journey to financial wellness.</p>
+            </header>
+
+            <!-- Signup Form -->
+            <form method="post" class="auth-form" novalidate>
+                {{ form.hidden_tag() }} <!-- CSRF TOKEN - CRITICAL -->
+
+                <div class="form-group">
+                    {{ form.username.label(class="form-label") }}
+                    {{ form.username(class="form-input", placeholder="Choose a unique username") }}
+                    {% for error in form.username.errors %}
+                        <div class="form-error">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="form-group">
+                    {{ form.password.label(class="form-label") }}
+                    {{ form.password(class="form-input", placeholder="Create a strong password (min. 8 characters)") }}
+                    {% for error in form.password.errors %}
+                        <div class="form-error">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div class="form-group">
+                    {{ form.confirm_password.label(class="form-label") }}
+                    {{ form.confirm_password(class="form-input", placeholder="Confirm your password") }}
+                    {% for error in form.confirm_password.errors %}
+                        <div class="form-error">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <!-- Use btn-accent for the primary signup action to differentiate from login -->
+                {{ form.submit(class="btn btn-accent", style="width: 100%; margin-top: 1rem;") }}
+            </form>
+
+            <div class="auth-terms">
+                By creating an account, you agree to our <a href="#">Terms of Service</a>.
+            </div>
+
+            <footer class="auth-footer">
+                <p>Already have an account? <a href="{{ url_for('login') }}">Sign In</a></p>
+            </footer>
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Add a loading state to the signup button on form submission.
+    const form = document.querySelector('.auth-form');
+    if (form) {
+        const submitBtn = form.querySelector('button[type="submit"], input[type="submit"]');
+        form.addEventListener('submit', () => {
+            if (submitBtn) {
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating Account...';
+                submitBtn.disabled = true;
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

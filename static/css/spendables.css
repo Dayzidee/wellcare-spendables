@@ -1,0 +1,1861 @@
+/**
+ * Well Care Spendables - Professional Frontend Architecture
+ * Version: 2.0
+ *
+ * This stylesheet follows a layered, ITCSS-inspired methodology for scalability and maintainability.
+ * Layers are ordered from generic to specific:
+ * 1. SETTINGS: Global variables, fonts, colors.
+ * 2. TOOLS: Mixins and functions (if using a preprocessor).
+ * 3. GENERIC: Reset and/or normalize styles.
+ * 4. ELEMENTS: Styling for bare HTML elements (h1, a, etc.).
+ * 5. OBJECTS: Layout-related classes (.container, .grid).
+ * 6. COMPONENTS: Styled UI elements (.btn, .card).
+ * 7. UTILITIES: Override classes (.text-center, .mt-4).
+ */
+
+/* ==========================================================================
+   1. SETTINGS - Global Variables & Configuration
+   ========================================================================== */
+:root {
+  /* [S] THEME COLORS - FOUNDATION FOR LIGHT/DARK MODES */
+  --hue-primary: 205; /* A neutral, professional blue hue */
+  --hue-accent: 158; /* Our Jade Green hue */
+  --hue-gold: 45; /* Our Gold hue */
+  --hue-silver: 210; /* A cool gray hue for Silver */
+  --hue-danger: 0;
+  --hue-warning: 38;
+
+  /* [S] TYPOGRAPHY */
+  /* We're upgrading to a more modern and elegant font pairing */
+  --font-sans: "Figtree", -apple-system, BlinkMacSystemFont, system-ui,
+    sans-serif;
+  --font-mono: "IBM Plex Mono", Consolas, monospace;
+
+  /* [S] SIZING & SPACING (T-shirt sizing for consistency) */
+  --space-xs: 0.25rem; /* 4px */
+  --space-sm: 0.5rem; /* 8px */
+  --space-md: 1rem; /* 16px */
+  --space-lg: 1.5rem; /* 24px */
+  --space-xl: 2.5rem; /* 40px */
+  --space-2xl: 4rem; /* 64px */
+
+  /* [S] BORDERS & SHADOWS */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --shadow-sm: 0 1px 2px 0 hsl(var(--hue-primary) 20% 50% / 0.05);
+  --shadow-md: 0 4px 6px -1px hsl(var(--hue-primary) 20% 50% / 0.1),
+    0 2px 4px -2px hsl(var(--hue-primary) 20% 50% / 0.1);
+  --shadow-lg: 0 10px 15px -3px hsl(var(--hue-primary) 20% 50% / 0.1),
+    0 4px 6px -4px hsl(var(--hue-primary) 20% 50% / 0.1);
+
+  /* [S] TRANSITIONS */
+  --transition-fast: all 150ms ease-in-out;
+  --transition-std: all 300ms ease-in-out;
+}
+
+/* [S] COLOR THEME - LIGHT MODE (Default) */
+:root {
+  --c-primary: #c0c0c0; /* Silver */
+  --c-secondary: #ffd700; /* Gold */
+  --c-accent: #00a36c; /* Jade */
+  --c-dark: #2f4f4f; /* Dark Slate Gray */
+
+  --c-text-primary: hsl(var(--hue-primary), 15%, 15%);
+  --c-text-secondary: hsl(var(--hue-primary), 10%, 40%);
+  --c-text-accent: var(--c-accent);
+
+  --c-bg: hsl(var(--hue-silver), 20%, 96%); /* Very light cool gray */
+  --c-surface: #ffffff;
+  --c-border: hsl(var(--hue-silver), 20%, 88%);
+
+  --c-success: var(--c-accent);
+  --c-warning: hsl(var(--hue-warning), 90%, 50%);
+  --c-danger: hsl(var(--hue-danger), 85%, 60%);
+  --c-info: hsl(var(--hue-primary), 90%, 55%);
+}
+
+/* Optional: Add Dark Mode variables later */
+/*
+@media (prefers-color-scheme: dark) {
+  :root {
+     --c-text-primary: hsl(var(--hue-primary), 10%, 95%);
+     ... etc ...
+  }
+}
+*/
+
+/* ==========================================================================
+   3. GENERIC - Reset & Normalize
+   ========================================================================== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+html {
+  scroll-behavior: smooth;
+}
+body {
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--c-text-primary);
+  background-color: var(--c-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+img,
+picture,
+video,
+canvas,
+svg {
+  display: block;
+  max-width: 100%;
+}
+button {
+  font: inherit;
+}
+
+/* ==========================================================================
+   4. ELEMENTS - Bare HTML Element Styling
+   ========================================================================== */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--c-dark);
+  margin-bottom: var(--space-md);
+}
+h1 {
+  font-size: clamp(2rem, 5vw, 3rem);
+} /* Fluid typography */
+h2 {
+  font-size: clamp(1.5rem, 4vw, 2.25rem);
+}
+h3 {
+  font-size: 1.25rem;
+}
+p {
+  margin-bottom: var(--space-md);
+  max-width: 65ch; /* Improves readability */
+}
+a {
+  color: var(--c-text-accent);
+  text-decoration: none;
+  transition: var(--transition-fast);
+}
+a:hover {
+  opacity: 0.8;
+}
+
+/* ==========================================================================
+   5. OBJECTS - Layout & Grid System
+   ========================================================================== */
+.container {
+  width: 100%;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: var(--space-lg);
+  padding-right: var(--space-lg);
+}
+.section {
+  padding-top: var(--space-2xl);
+  padding-bottom: var(--space-2xl);
+}
+.grid {
+  display: grid;
+  gap: var(--space-lg);
+}
+
+/* ==========================================================================
+   6. COMPONENTS - Styled UI Elements
+   ========================================================================== */
+
+/* [C] Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: var(--transition-std);
+  text-decoration: none;
+}
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+.btn-primary {
+  background: var(--c-secondary);
+  color: var(--c-dark);
+  border-color: var(--c-secondary);
+}
+.btn-primary:hover {
+  background: #e6c300;
+  border-color: #e6c300;
+}
+.btn-accent {
+  background: var(--c-accent);
+  color: var(--c-surface);
+  border-color: var(--c-accent);
+}
+.btn-accent:hover {
+  background: #008a59;
+  border-color: #008a59;
+}
+.btn-secondary {
+  background: var(--c-dark);
+  color: var(--c-surface);
+  border-color: var(--c-dark);
+}
+.btn-secondary:hover {
+  background: #1e3636;
+}
+.btn-outline {
+  background: transparent;
+  color: var(--c-accent);
+  border-color: var(--c-accent);
+}
+.btn-outline:hover {
+  background: var(--c-accent);
+  color: var(--c-surface);
+}
+.btn-icon {
+  background: transparent;
+  border: none;
+  font-size: 1.25rem;
+  color: var(--c-text-secondary);
+  cursor: pointer;
+  padding: var(--space-sm);
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition-fast);
+}
+.btn-icon:hover {
+  background: var(--c-bg);
+  color: var(--c-dark);
+}
+
+/* [C] Forms */
+.form-group {
+  margin-bottom: var(--space-lg);
+}
+.form-label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: var(--space-sm);
+}
+.form-input {
+  display: block;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  background-color: var(--c-surface);
+  transition: var(--transition-fast);
+}
+.form-input:focus {
+  outline: none;
+  border-color: var(--c-accent);
+  box-shadow: 0 0 0 3px hsl(var(--hue-accent) 90% 50% / 0.25);
+}
+
+/* [C] Cards - A flexible base component */
+.card {
+  background: var(--c-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: var(--space-xl);
+  border: 1px solid var(--c-border);
+}
+/* Card Modifiers */
+.card--interactive {
+  transition: var(--transition-std);
+}
+.card--interactive:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* [C] App Header & Footer */
+.app-header {
+  background: var(--c-surface);
+  box-shadow: var(--shadow-md);
+  padding: var(--space-md) 0;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  border-bottom: 1px solid var(--c-border);
+}
+.app-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.app-logo {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--c-dark);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+.app-logo i {
+  color: var(--c-accent);
+}
+.nav-links {
+    /* --- On Desktop, it's just a flex container --- */
+    display: flex;
+    align-items: center;
+    gap: var(--space-lg);
+    transition: var(--transition-std);
+}
+.header-icon-group {
+  display: flex;
+  gap: var(--space-sm);
+  border-left: 1px solid var(--c-border);
+  margin-left: var(--space-sm);
+  padding-left: var(--space-lg);
+}
+.mobile-menu-btn {
+  display: none;
+}
+
+/* [C] Hamburger Menu (A proper animated component) */
+/* This is a NEW component style block */
+.hamburger-btn {
+  display: none; /* Hidden on desktop */
+  width: 44px;
+  height: 44px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: var(--space-sm);
+  position: relative; /* For z-index stacking */
+  z-index: 2010; /* Ensure it's above other elements */
+}
+.hamburger-btn span {
+  display: block;
+  width: 24px;
+  height: 3px;
+  background: var(--c-dark);
+  margin: 5px auto;
+  transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+  border-radius: 3px;
+}
+/* Animation for when the menu is active (toggled via JS) */
+.hamburger-btn.is-active span:nth-child(1) {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+.hamburger-btn.is-active span:nth-child(2) {
+  opacity: 0;
+}
+.hamburger-btn.is-active span:nth-child(3) {
+  transform: rotate(-45deg) translate(6px, -6px);
+}
+
+
+
+.app-footer {
+  background: var(--c-dark);
+  color: var(--c-bg);
+  padding: var(--space-2xl) 0;
+  margin-top: var(--space-2xl);
+}
+.footer-content {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+.footer-logo {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--c-surface);
+}
+.footer-logo i {
+  color: var(--c-accent);
+}
+.footer-tagline {
+  color: var(--c-primary);
+}
+.footer-links {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-md);
+  align-items: center;
+}
+.footer-links a {
+  color: var(--c-surface);
+  font-weight: 500;
+}
+.footer-links a:hover {
+  text-decoration: underline;
+}
+.footer-copyright {
+  font-size: 0.9rem;
+  opacity: 0.7;
+  margin: 0;
+}
+
+/* [C] Side Panels */
+.app-panel {
+  position: fixed;
+  top: 0;
+  right: -450px;
+  width: 100%;
+  max-width: 450px;
+  height: 100%;
+  background-color: var(--c-surface);
+  z-index: 2000;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.app-panel.is-active {
+  transform: translateX(-100%);
+}
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-md) var(--space-lg);
+  background-color: var(--c-bg);
+  border-bottom: 1px solid var(--c-border);
+}
+.panel-header h2 {
+  font-size: 1.25rem;
+  margin: 0;
+}
+.panel-content {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: var(--space-lg);
+}
+.panel-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: hsl(var(--hue-primary) 20% 5% / 0.6);
+  z-index: 1999;
+  opacity: 0;
+  visibility: hidden;
+  transition: var(--transition-std);
+}
+.panel-overlay.is-active {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* [C] Alerts */
+.alert {
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-md);
+  border-left: 4px solid;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-weight: 500;
+}
+.alert-success {
+  background: hsl(var(--hue-accent) 80% 95%);
+  color: hsl(var(--hue-accent) 60% 25%);
+  border-color: var(--c-success);
+}
+.alert-error {
+  background: hsl(var(--hue-danger) 80% 95%);
+  color: hsl(var(--hue-danger) 60% 35%);
+  border-color: var(--c-danger);
+}
+
+/* ==========================================================================
+   7. UTILITIES & RESPONSIVE DESIGN
+   ========================================================================== */
+.section-header {
+  text-align: center;
+  margin-bottom: var(--space-xl);
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.section-header h2 {
+  margin-bottom: var(--space-sm);
+}
+.section-header p {
+  color: var(--c-text-secondary);
+  max-width: 60ch;
+  margin: 0 auto;
+}
+
+/* [U] Animations */
+.anim-fade-in-up {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+}
+.anim-fade-in {
+  opacity: 0;
+  transition: opacity 0.8s ease-in;
+}
+.anim-fade-in-up.is-visible,
+.anim-fade-in.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* [U] Responsive Grid */
+.grid-cols-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+.grid-cols-3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-areas: "main main sidebar";
+  gap: var(--space-lg);
+}
+.dashboard-main {
+  grid-area: main;
+}
+.dashboard-sidebar {
+  grid-area: sidebar;
+}
+
+/* [U] Responsive Breakpoints (Mobile First) */
+@media (max-width: 992px) {
+  .dashboard-grid {
+    grid-template-areas: "main main main" "sidebar sidebar sidebar";
+  }
+  .grid-cols-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  h1 {
+    font-size: 2.25rem;
+  }
+  .section {
+    padding-top: var(--space-xl);
+    padding-bottom: var(--space-xl);
+  }
+  .container {
+    padding-left: var(--space-md);
+    padding-right: var(--space-md);
+  }
+
+  /* Navigation */
+  .nav-links {
+    display: none;
+  }
+  .mobile-menu-btn {
+    display: inline-flex;
+  }
+
+  /* Grids */
+  .grid-cols-2,
+  .grid-cols-3 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* [C] Dashboard-specific Components */
+.dashboard-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-xl);
+}
+.dashboard-title {
+  margin-bottom: 0;
+}
+.dashboard-title .highlight {
+  color: var(--c-accent);
+}
+.dashboard-subtitle {
+  font-size: 1.1rem;
+  color: var(--c-text-secondary);
+  margin: 0;
+}
+.account-tier {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  background-color: var(--c-surface);
+  color: var(--c-secondary);
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 50px;
+  border: 1px solid var(--c-border);
+}
+
+.summary-card {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  align-items: center;
+  gap: var(--space-lg);
+}
+.summary-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+.summary-icon {
+  font-size: 2rem;
+}
+.summary-label {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--c-text-secondary);
+}
+.summary-value {
+  display: block;
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--c-dark);
+  font-family: var(--font-mono);
+}
+.summary-cta {
+  justify-self: end;
+}
+
+/* Reusable Card Header */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: var(--space-md);
+  margin-bottom: var(--space-md);
+  border-bottom: 1px solid var(--c-border);
+}
+.card-title {
+  font-size: 1.25rem;
+  margin: 0;
+}
+
+/* Reusable List Component */
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+.list-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-sm);
+  border-radius: var(--radius-md);
+  transition: var(--transition-fast);
+  text-decoration: none;
+  color: inherit;
+}
+a.list-item:hover {
+  background-color: var(--c-bg);
+}
+.list-item-icon {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 1.1rem;
+}
+.list-item-icon.icon-accent {
+  color: var(--c-accent);
+  background-color: hsl(var(--hue-accent) 80% 95%);
+}
+.list-item-icon.icon-info {
+  color: var(--c-info);
+  background-color: hsl(var(--hue-primary) 80% 95%);
+}
+.list-item-icon.icon-warning {
+  color: var(--c-warning);
+  background-color: hsl(var(--hue-warning) 80% 95%);
+}
+.list-item-icon.icon-danger {
+  color: var(--c-danger);
+  background-color: hsl(var(--hue-danger) 80% 95%);
+}
+.list-item-icon.icon-credit {
+  color: var(--c-success);
+  background-color: hsl(var(--hue-accent) 80% 95%);
+}
+.list-item-icon.icon-debit {
+  color: var(--c-text-secondary);
+  background-color: var(--c-bg);
+}
+
+.list-item-content {
+  flex-grow: 1;
+}
+.list-item-title {
+  display: block;
+  font-weight: 500;
+}
+.list-item-subtitle {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--c-text-secondary);
+}
+.list-item-text {
+  font-size: 0.9rem;
+  color: var(--c-text-secondary);
+  line-height: 1.5;
+  margin: 0;
+}
+.list-item-value {
+  font-weight: 600;
+  font-family: var(--font-mono);
+}
+.list-item-value.value-credit {
+  color: var(--c-success);
+}
+.list-item-chevron {
+  margin-left: auto;
+  color: var(--c-border);
+}
+
+.chart-container {
+  position: relative;
+  height: 300px;
+}
+.empty-state {
+  padding: var(--space-xl) 0;
+  text-align: center;
+  color: var(--c-text-secondary);
+}
+.btn-sm {
+  padding: 0.25rem 0.75rem;
+  font-size: 0.875rem;
+}
+
+/* ==========================================================================
+   7. PAGE-SPECIFIC STYLES: HOMEPAGE
+   ========================================================================== */
+
+/* [P] Hero Section */
+.hero-section {
+  background: radial-gradient(
+    circle,
+    hsl(var(--hue-silver), 20%, 98%),
+    var(--c-bg)
+  );
+  overflow: hidden;
+}
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: var(--space-2xl);
+}
+.hero-eyebrow {
+  display: block;
+  font-weight: 600;
+  color: var(--c-text-accent);
+  margin-bottom: var(--space-md);
+}
+.hero-title {
+  font-size: clamp(2.5rem, 6vw, 4rem); /* More impactful title */
+  font-weight: 800;
+  margin-bottom: var(--space-lg);
+}
+.hero-title .highlight {
+  color: var(--c-text-accent);
+}
+.hero-subtitle {
+  font-size: 1.25rem;
+  color: var(--c-text-secondary);
+  max-width: 55ch;
+  margin-bottom: var(--space-xl);
+}
+.hero-buttons {
+  display: flex;
+  flex-wrap: wrap; /* Allows buttons to wrap on smaller screens */
+  gap: var(--space-md);
+  margin-top: var(--space-xl); /* Add margin to separate from text */
+}
+.btn-lg {
+  padding: var(--space-md) var(--space-xl);
+  font-size: 1.1rem;
+}
+
+/* [P] Trust Bar */
+.trust-bar {
+  background-color: var(--c-surface);
+  padding: var(--space-lg) 0;
+  border-top: 1px solid var(--c-border);
+  border-bottom: 1px solid var(--c-border);
+}
+.trust-bar .container {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  gap: var(--space-lg);
+  filter: grayscale(100%);
+  opacity: 0.6;
+}
+.trust-bar span {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--c-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.trust-bar i {
+  font-size: 2rem;
+}
+
+/* [P] Feature Grid */
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--space-lg);
+}
+.feature-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.75rem;
+  margin: 0 auto var(--space-lg) auto; /* Center the icon */
+}
+/* [P] Feature Grid - Enrichment */
+.feature-grid .card {
+  text-align: center;
+}
+
+/* [C] Dashboard Empty States & Polish */
+.empty-state {
+  padding: var(--space-xl) var(--space-md);
+  text-align: center;
+  color: var(--c-text-secondary);
+  border: 2px dashed var(--c-border);
+  border-radius: var(--radius-lg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-md);
+}
+.empty-state i {
+  font-size: 2.5rem;
+  color: var(--c-border);
+}
+
+/* --- REPLACE the existing Mobile Navigation styles with this superior version --- */
+/* [JS] Mobile Navigation (Enhanced slide-in panel) */
+@media (max-width: 992px) { /* Use a wider breakpoint for nav collapse */
+    .nav-links {
+        /* --- On Mobile, it becomes a slide-in panel --- */
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: min(400px, 90vw); /* Responsive width: max 400px, or 90% of screen */
+        height: 100%;
+        background-color: var(--c-surface);
+        flex-direction: column;
+        align-items: flex-start; /* Left-align content */
+        padding: var(--space-2xl) var(--space-xl);
+        box-shadow: var(--shadow-lg);
+        border-left: 1px solid var(--c-border);
+        
+        /* Start off-screen to the right */
+        transform: translateX(100%);
+        visibility: hidden;
+        transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), visibility 0.4s;
+        z-index: 2000; /* Below the hamburger, above the overlay */
+    }
+    
+    
+    .nav-links.is-active {
+        transform: translateX(0);
+        visibility: visible;
+    }
+
+    .nav-links a,
+    .nav-links .user-greeting {
+        padding: var(--space-md) 0;
+        text-align: left;
+        width: 100%;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--c-dark);
+        border-bottom: 1px solid var(--c-border);
+    }
+    .nav-links .header-icon-group {
+        border: none;
+        padding: var(--space-md) 0;
+        margin: var(--space-md) 0;
+        justify-content: flex-start;
+        width: 100%;
+        border-top: 1px solid var(--c-border);
+        border-bottom: 1px solid var(--c-border);
+        gap: var(--space-lg);
+    }
+    .nav-links a:hover {
+        color: var(--c-accent);
+    }
+    .nav-links a.is-active {
+        color: var(--c-accent);
+        font-weight: 700;
+    }
+    .nav-links .header-icon-group {
+        display: none; /* Hide the desktop icon group on mobile */
+    }
+
+    /* Push Login/Logout to the bottom of the panel */
+   .nav-links .btn {
+        margin-top: auto; /* This is the key to pushing it down */
+        width: 100%;
+        text-align: center;
+        padding: var(--space-md) 0;
+        font-size: 1.1rem;
+    }
+    /* Show the hamburger menu on tablets and smaller */
+    .hamburger-btn {
+        display: block; 
+    }
+}
+.feature-title {
+  font-size: 1.5rem;
+  margin-bottom: var(--space-sm);
+}
+.feature-description {
+  color: var(--c-text-secondary);
+  margin: 0;
+}
+
+/* [P] Process Section */
+.process-section {
+  background-color: var(--c-surface);
+}
+.process-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: var(--space-2xl);
+}
+.eyebrow-text {
+  display: block;
+  font-weight: 600;
+  color: var(--c-text-accent);
+  margin-bottom: var(--space-sm);
+}
+.process-content .list {
+  gap: var(--space-lg);
+}
+.process-content .list-item {
+  align-items: flex-start;
+}
+.process-content .list-item-text {
+  max-width: 50ch;
+  margin: 0;
+}
+
+/* [P] Testimonials Section */
+.testimonials-section {
+  background: radial-gradient(
+    circle,
+    hsl(var(--hue-silver), 20%, 98%),
+    var(--c-bg)
+  );
+}
+.testimonial-card {
+  background-color: var(--c-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  border: 1px solid var(--c-border);
+  box-shadow: var(--shadow-md);
+}
+.testimonial-rating {
+  color: var(--c-secondary);
+  margin-bottom: var(--space-md);
+}
+.testimonial-quote {
+  font-size: 1.1rem;
+  font-style: italic;
+  color: var(--c-text-secondary);
+  margin-bottom: var(--space-lg);
+}
+.testimonial-author {
+  font-weight: 600;
+  text-align: right;
+}
+
+/* [P] CTA Section */
+.cta-section {
+  background-color: var(--c-dark);
+  color: var(--c-surface);
+  text-align: center;
+}
+.cta-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-lg);
+}
+.cta-content h2 {
+  color: var(--c-surface);
+}
+.cta-content p {
+  color: var(--c-primary);
+  max-width: 60ch;
+}
+
+/* [U] Responsive Overrides for Homepage */
+@media (max-width: 992px) {
+  .hero-grid,
+  .process-grid {
+    grid-template-columns: 1fr;
+  }
+  .hero-content {
+    text-align: center;
+    align-items: center;
+  }
+  .hero-image-container {
+    max-width: 500px;
+    margin: 0 auto;
+    order: -1;
+  }
+  .process-image-container {
+    max-width: 400px;
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .trust-bar .container {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+}
+/* ==========================================================================
+   8. JAVASCRIPT-DRIVEN STATES & ANIMATIONS
+   ========================================================================== */
+
+/* [JS] Alert Dismissal */
+.alert {
+  cursor: pointer;
+  transition: opacity 0.3s ease, transform 0.3s ease, margin-bottom 0.3s ease,
+    padding 0.3s ease;
+}
+.alert.is-dismissing {
+  opacity: 0;
+  transform: scale(0.95);
+  margin-bottom: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+  border-width: 0; /* Ensures the border fades too */
+}
+
+/* [JS] Mobile Navigation */
+.mobile-menu-btn i {
+  transition: transform 0.3s ease;
+}
+.mobile-menu-btn.is-active i {
+  transform: rotate(90deg);
+}
+
+@media (max-width: 768px) {
+  .nav-links {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: var(--c-surface);
+    flex-direction: column;
+    align-items: stretch;
+    padding: var(--space-md);
+    border-top: 1px solid var(--c-border);
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-10px);
+    opacity: 0;
+    visibility: hidden;
+    transition: transform 0.3s ease, opacity 0.3s ease, visibility 0.3s ease;
+  }
+
+  .nav-links.is-active {
+    display: flex;
+    transform: translateY(0);
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .nav-links a,
+  .nav-links .user-greeting {
+    padding: var(--space-md);
+    text-align: center;
+    border-bottom: 1px solid var(--c-border);
+  }
+  .nav-links .header-icon-group {
+    border: none;
+    padding: var(--space-md) 0;
+    margin: 0;
+    justify-content: center;
+    width: 100%;
+    border-bottom: 1px solid var(--c-border);
+  }
+}
+
+/* [C] Authentication Layout & Components */
+.auth-layout {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 80px); /* Full viewport height minus header */
+  padding: var(--space-xl) 0;
+}
+
+.auth-card {
+  max-width: 450px;
+  margin: 0 auto;
+  padding: var(--space-xl);
+}
+
+.auth-header {
+  text-align: center;
+  margin-bottom: var(--space-xl);
+}
+
+.auth-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  background-color: var(--c-accent);
+  color: var(--c-surface);
+  border-radius: 50%;
+  font-size: 1.75rem;
+  margin-bottom: var(--space-lg);
+  text-decoration: none;
+}
+.auth-header h2 {
+  font-size: 1.75rem;
+  margin-bottom: var(--space-sm);
+}
+.auth-header p {
+  color: var(--c-text-secondary);
+  margin: 0;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.form-error {
+  color: var(--c-danger);
+  font-size: 0.875rem;
+  margin-top: var(--space-xs);
+}
+
+.form-options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+  margin-bottom: var(--space-sm);
+}
+
+.form-checkbox {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  cursor: pointer;
+}
+.form-checkbox input {
+  width: 1em;
+  height: 1em;
+}
+
+.form-link {
+  font-weight: 500;
+}
+
+.auth-footer {
+  text-align: center;
+  margin-top: var(--space-lg);
+  padding-top: var(--space-lg);
+  border-top: 1px solid var(--c-border);
+  font-size: 0.9rem;
+}
+.auth-footer p {
+  color: var(--c-text-secondary);
+  margin: 0;
+}
+/* Add this inside the [C] Authentication Layout & Components section */
+
+.auth-terms {
+  font-size: 0.8rem;
+  color: var(--c-text-secondary);
+  text-align: center;
+  margin-top: var(--space-lg);
+  max-width: 300px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.5;
+}
+/* Add these styles to the [C] Forms section */
+
+/* For styled radio button groups */
+.segmented-control {
+  display: flex;
+  background-color: var(--c-bg);
+  padding: var(--space-xs);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--c-border);
+}
+.segmented-control label {
+  flex: 1;
+  position: relative;
+}
+.segmented-control input[type="radio"] {
+  /* Hide the actual radio button */
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.segmented-control span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  padding: 0.75rem;
+  text-align: center;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition-fast);
+  font-weight: 500;
+  color: var(--c-text-secondary);
+}
+.segmented-control input[type="radio"]:checked + span {
+  background-color: var(--c-surface);
+  box-shadow: var(--shadow-sm);
+  color: var(--c-accent);
+  font-weight: 600;
+}
+.segmented-control input[type="radio"]:focus-visible + span {
+  outline: 2px solid var(--c-accent);
+  outline-offset: 2px;
+}
+
+/* For buttons attached to inputs */
+.input-group {
+  display: flex;
+}
+.input-group .form-input {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  /* Make sure the input doesn't overlap the button */
+  position: relative;
+  z-index: 1;
+}
+.input-group .btn {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  /* Fix for double border when input is focused */
+  margin-left: -1px;
+}
+.input-group .form-input:focus {
+  z-index: 2; /* Bring focused input above the button */
+}
+
+/* For helper text below an input, like the recipient info */
+.form-meta {
+  font-size: 0.9rem;
+  margin-top: var(--space-sm);
+  font-weight: 500;
+  min-height: 1.2em; /* Prevents layout shift */
+  transition: var(--transition-fast);
+}
+.form-meta.is-verifying {
+  color: var(--c-text-secondary);
+}
+.form-meta.is-success {
+  color: var(--c-success);
+}
+.form-meta.is-error {
+  color: var(--c-danger);
+}
+/* [C] Summary List Component */
+.summary-list {
+  background-color: var(--c-bg);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-sm) var(--space-lg);
+}
+
+.summary-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-md) 0;
+  font-size: 1rem;
+}
+
+.summary-list-item:not(:last-child) {
+  border-bottom: 1px dashed var(--c-border);
+}
+
+.summary-list-item span {
+  color: var(--c-text-secondary);
+}
+
+.summary-list-item strong {
+  color: var(--c-dark);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+.summary-list-item strong i {
+  color: var(--c-text-secondary);
+}
+
+.summary-list-item.is-total {
+  padding-top: var(--space-lg);
+  margin-top: var(--space-sm);
+  border-top: 2px solid var(--c-border);
+  border-bottom: none;
+}
+
+.summary-list-item .total-amount {
+  font-size: 1.5rem;
+  font-family: var(--font-mono);
+  color: var(--c-accent);
+}
+
+/* [C] Identifier Card */
+.identifier-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+  background-color: var(--c-surface);
+  border-radius: var(--radius-lg);
+  padding: var(--space-lg);
+  margin-top: var(--space-lg);
+  border: 1px solid var(--c-border);
+}
+.identifier-content {
+  flex-grow: 1;
+}
+.identifier-label {
+  display: block;
+  font-size: 0.9rem;
+  color: var(--c-text-secondary);
+  margin-bottom: var(--space-xs);
+}
+.identifier-number {
+  font-family: var(--font-mono);
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: var(--c-dark);
+}
+
+/* [C] Virtual 3D Card */
+.virtual-card-container {
+  perspective: 1000px;
+  margin-bottom: var(--space-md);
+}
+.virtual-card-flipper {
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.7s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.virtual-card-flipper.is-flipped {
+  transform: rotateY(180deg);
+}
+.virtual-card {
+  width: 100%;
+  padding: var(--space-lg);
+  border-radius: var(--radius-lg);
+  aspect-ratio: 1.586 / 1; /* Standard credit card ratio */
+  color: var(--c-surface);
+  background: linear-gradient(135deg, var(--c-dark), #1a2c2c);
+  font-family: var(--font-mono);
+  position: relative;
+  overflow: hidden;
+  backface-visibility: hidden;
+  box-shadow: var(--shadow-lg);
+}
+.virtual-card.is-back {
+  transform: rotateY(180deg);
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.card-flip-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  z-index: 3;
+  background: none;
+  border: none;
+  color: hsl(0 0% 100% / 0.6);
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: var(--transition-std);
+}
+.card-flip-btn:hover {
+  color: #fff;
+  transform: rotate(180deg);
+}
+
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.card-chip {
+  width: 48px;
+  height: 38px;
+  background: #d4af37;
+  border-radius: 4px;
+}
+.card-logo {
+  font-weight: bold;
+  font-size: 1.2rem;
+  opacity: 0.8;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.card-number {
+  font-size: clamp(1.1rem, 4.5vw, 1.5rem);
+  letter-spacing: 3px;
+  margin: auto 0;
+  text-align: center;
+  transition: var(--transition-std);
+  padding: var(--space-lg) 0;
+}
+.card-number.is-masked {
+  filter: blur(4px);
+  transform: scale(0.95);
+}
+
+.card-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+.card-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  opacity: 0.7;
+  display: block;
+}
+.card-name {
+  font-size: 0.9rem;
+  font-weight: 500;
+  font-family: var(--font-sans);
+}
+
+/* Card Back Styles */
+.card-mag-stripe {
+  height: 50px;
+  background: #333;
+  margin: var(--space-lg) calc(-1 * var(--space-lg));
+}
+.card-cvv-box {
+  text-align: right;
+  margin-top: var(--space-lg);
+}
+.card-cvv {
+  font-size: 1.25rem;
+  letter-spacing: 2px;
+}
+.card-cvv.is-masked {
+  filter: blur(4px);
+}
+
+.card-controls {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  background-color: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-sm) var(--space-md);
+}
+
+/* Add this to the [C] Components section or create a new Panel section */
+
+/* [C] Panel Specifics */
+.panel-content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}
+.panel-section:not(:last-child) {
+  padding-bottom: var(--space-lg);
+  border-bottom: 1px solid var(--c-border);
+}
+.panel-section-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: var(--space-lg);
+  color: var(--c-dark);
+}
+.panel-section-subtitle {
+  font-size: 0.9rem;
+  color: var(--c-text-secondary);
+  margin-top: calc(-1 * var(--space-md)); /* Pulls it closer to the title */
+  margin-bottom: var(--space-lg);
+}
+
+/* Specific tweaks for panel lists */
+.app-panel .list-item-icon {
+  /* Use a neutral background for panel icons */
+  background-color: transparent;
+  color: var(--c-text-secondary);
+}
+.app-panel .list-item:hover .list-item-icon {
+  color: var(--c-accent);
+}
+
+/* Ensure panel empty state is styled */
+.app-panel .empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-md);
+  padding: var(--space-xl) 0;
+  text-align: center;
+}
+.app-panel .empty-state i {
+  font-size: 2.5rem;
+  color: var(--c-border);
+}
+
+/* Add this to your file, ideally in the [C] Forms and [C] Panel Specifics sections */
+
+/* [C] Form Enhancements */
+.form-divider {
+  grid-column: 1 / -1; /* Make it span the full width of the grid */
+  border: none;
+  border-top: 1px solid var(--c-border);
+  margin: var(--space-md) 0;
+}
+
+/* [C] Panel Specifics - Enhancements */
+.panel-content .list-item {
+  align-items: flex-start; /* Better alignment for multi-line text */
+}
+
+.panel-content .list-item-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-content .list-item .list-item-subtitle {
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+/* Specific icon color overrides for panel lists */
+.panel-content .list-item-icon.icon-info {
+  color: var(--c-info);
+  background-color: hsl(var(--hue-primary), 80%, 95%);
+}
+
+/* [C] Live Chat Widget (Corrected & Enhanced) */
+#chat-widget-container {
+  position: fixed;
+  bottom: var(--space-lg);
+  right: var(--space-lg);
+  z-index: 1050;
+  /* Add this to allow child elements to be positioned relative to the viewport edge */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.chat-toggle-btn {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background-color: var(--c-accent);
+  color: var(--c-surface);
+  border: none;
+  font-size: 1.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-lg);
+  cursor: pointer;
+  transition: var(--transition-std);
+  /* Ensure the button is on top of the window when closed */
+  position: relative;
+  z-index: 2;
+}
+.chat-toggle-btn:hover {
+  transform: scale(1.1) rotate(10deg);
+}
+/* Change icon on toggle for better UX */
+.chat-toggle-btn .fa-comment-dots {
+  display: block;
+}
+.chat-toggle-btn .fa-times {
+  display: none;
+}
+.chat-toggle-btn.is-active .fa-comment-dots {
+  display: none;
+}
+.chat-toggle-btn.is-active .fa-times {
+  display: block;
+}
+
+.chat-window {
+  /* No longer positioned absolutely to the container */
+  width: 350px;
+  max-height: 500px;
+  background-color: var(--c-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  margin-bottom: var(--space-md);
+
+  /* --- KEY FIX: ANIMATION & VISIBILITY --- */
+  /* We will now control visibility with height and opacity */
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(10px); /* A slight vertical lift for effect */
+  transition: max-height 0.4s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s ease,
+    transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  visibility: hidden;
+}
+
+.chat-window.is-open {
+  /* --- KEY FIX: VISIBLE STATE --- */
+  max-height: 500px; /* Animate to its max possible height */
+  opacity: 1;
+  transform: translateY(0);
+  visibility: visible;
+  transition: max-height 0.4s cubic-bezier(0.25, 1, 0.5, 1),
+    opacity 0.3s ease 0.1s,
+    /* Delay opacity until it starts opening */ transform 0.4s
+      cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+/* Chat Header, Messages, and Input area styles remain the same... */
+.chat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-sm) var(--space-lg);
+  background-color: var(--c-dark);
+  color: var(--c-surface);
+  flex-shrink: 0; /* Prevents header from shrinking */
+}
+.chat-header h3 {
+  font-size: 1.1rem;
+  color: var(--c-surface);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+.chat-header .btn-icon {
+  color: var(--c-primary);
+}
+
+.chat-messages {
+  flex-grow: 1;
+  padding: var(--space-md);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.chat-message {
+  display: flex;
+  max-width: 80%;
+}
+.chat-message span {
+  padding: var(--space-sm) var(--space-md);
+  border-radius: 18px;
+  line-height: 1.4;
+}
+.chat-message.is-user {
+  align-self: flex-end;
+}
+.chat-message.is-user span {
+  background-color: var(--c-accent);
+  color: var(--c-surface);
+  border-bottom-right-radius: 4px;
+}
+.chat-message.is-agent {
+  align-self: flex-start;
+}
+.chat-message.is-agent span {
+  background-color: var(--c-bg);
+  color: var(--c-text-primary);
+  border-bottom-left-radius: 4px;
+}
+.chat-message.is-system {
+  align-self: center;
+  font-size: 0.8rem;
+  color: var(--c-text-secondary);
+}
+
+.chat-input-area {
+  display: flex;
+  padding: var(--space-md);
+  border-top: 1px solid var(--c-border);
+  flex-shrink: 0; /* Prevents input from shrinking */
+}
+.chat-input-area .form-input {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.chat-input-area .btn {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+/* [C] Admin Chat Interface */
+.admin-chat-layout {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: var(--space-lg);
+    height: 75vh; /* Set a fixed height for the whole component */
+    background-color: var(--c-surface);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--c-border);
+    overflow: hidden;
+}
+.chat-sidebar {
+    border-right: 1px solid var(--c-border);
+    display: flex;
+    flex-direction: column;
+    overflow-y: hidden; /* Prevent double scrollbars */
+}
+.chat-sidebar h2 {
+  padding: var(--space-md);
+  margin: 0;
+  border-bottom: 1px solid var(--c-border);
+  font-size: 1.2rem;
+}
+.chat-sidebar .list {
+  overflow-y: auto;
+  flex-grow: 1;
+}
+.chat-conversation-area {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Prevent double scrollbars */
+}
+.chat-conversation-area .empty-state {
+  margin: auto;
+}
+
+/* [C] Admin Chat Interface - Enhancements */
+.chat-sidebar .list-item.is-active {
+  background-color: hsl(var(--hue-accent), 80%, 95%);
+}
+.chat-sidebar-header {
+  padding: var(--space-md);
+  border-bottom: 1px solid var(--c-border);
+}
+.chat-sidebar-header h2 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+.chat-sidebar .list-item {
+  position: relative;
+}
+.chat-sidebar .notification-dot {
+  position: absolute;
+  top: 50%;
+  right: var(--space-md);
+  transform: translateY(-50%);
+  width: 12px;
+  height: 12px;
+  background-color: var(--c-danger);
+  border-radius: 50%;
+  border: 2px solid var(--c-surface);
+}
+.notification-dot.is-hidden {
+  display: none;
+}
+#chat-active-screen {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+#chat-active-screen.is-hidden {
+  display: none;
+}
+
+#chat-active-screen .chat-header,
+#chat-active-screen .chat-input-area {
+    /* Tell the header and footer NOT to shrink, no matter what */
+    flex-shrink: 0;
+}
+
+#chat-active-screen .chat-messages {
+    /* Tell the message list to take up ALL available space */
+    flex-grow: 1; 
+    /* CRITICAL: Make the message list scrollable if content overflows */
+    overflow-y: auto; 
+}
+
+/* Add these styles to your [C] Live Chat Widget section */
+
+.chat-message .timestamp {
+  display: block;
+  font-size: 0.75rem;
+  margin-top: var(--space-xs);
+  opacity: 0.7;
+}
+.chat-message.is-user .timestamp {
+  text-align: right;
+  color: var(--c-surface);
+}
+.chat-message.is-agent .timestamp {
+  text-align: left;
+  color: var(--c-text-secondary);
+}
+.chat-message.is-user {
+  flex-direction: column; /* Allow timestamp to sit below */
+}
+.chat-message.is-agent {
+  flex-direction: column; /* Allow timestamp to sit below */
+}

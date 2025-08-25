@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Page Not Found{% endblock %}
+
+{% block content %}
+<div class="section-padding" style="text-align: center;">
+    <div class="container">
+        <h1 style="font-size: 5rem; color: var(--c-primary);"><i class="fas fa-exclamation-triangle"></i> 404</h1>
+        <h2>Page Not Found</h2>
+        <p>Sorry, the page you are looking for does not exist or has been moved.</p>
+        <a href="{{ url_for('index') }}" class="btn btn-primary">
+            <i class="fas fa-home"></i> Go to Homepage
+        </a>
+    </div>
+</div>
+{% endblock %}

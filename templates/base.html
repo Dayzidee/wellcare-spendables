@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="{% block meta_description %}Well Care Spendables - Your partner in achieving financial wellness. Track spending, set goals, and gain clarity on your finances with our intuitive tools.{% endblock %}"
+    />
+    <meta name="author" content="Well Care Spendables" />
+    <title>
+      {% block title %}Well Care Spendables{% endblock %} - Your Financial
+      Wellness Partner
+    </title>
+
+    <link
+      rel="icon"
+      type="image/x-icon"
+      href="{{ url_for('static', filename='images/favicon.ico') }}"
+    />
+    <meta name="theme-color" content="#00A36C" />
+
+    <!-- === FONTS & ICONS === -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- === STYLESHEETS (USING ASSET BUNDLING) === -->
+    {% assets "css_all" %}
+    <link rel="stylesheet" href="{{ ASSET_URL }}" />
+    {% endassets %} {% block extra_css %}{% endblock %}
+  </head>
+  <body class="{% block body_class %}{% endblock %}">
+    <!-- ============================ -->
+    <!-- HEADER -->
+    <!-- ============================ -->
+    <header class="app-header">
+      <nav class="container app-nav">
+        <a href="{{ url_for('index') }}" class="app-logo"
+          ><i class="fas fa-leaf"></i> Well Care Spendables</a
+        >
+        <div class="nav-links">
+          {% if current_user.is_authenticated %}
+          <a href="{{ url_for('dashboard') }}">Dashboard</a>
+          <a href="{{ url_for('transfer') }}">Transfer Funds</a>
+          <div class="header-icon-group">
+            <button id="support-panel-trigger" class="btn-icon" title="Support">
+              <i class="fas fa-headset"></i>
+            </button>
+            <button
+              id="notifications-panel-trigger"
+              class="btn-icon"
+              title="Notifications"
+            >
+              <i class="fas fa-bell"></i>
+              {% if has_unread_notifications %}<span
+                class="notification-dot"
+              ></span
+              >{% endif %}
+            </button>
+            <button
+              id="settings-panel-trigger"
+              class="btn-icon"
+              title="Settings"
+            >
+              <i class="fas fa-cog"></i>
+            </button>
+          </div>
+          <a href="{{ url_for('logout') }}" class="btn btn-secondary">Logout</a>
+          {% else %}
+          <a href="{{ url_for('login') }}">Login</a>
+          <a href="{{ url_for('signup') }}" class="btn btn-primary"
+            ><i class="fas fa-rocket"></i> Get Started</a
+          >
+          {% endif %}
+        </div>
+        <button id="mobile-menu-trigger" class="hamburger-btn" aria-label="Open menu" aria-expanded="false">
+    <span></span>
+    <span></span>
+    <span></span>
+</button>
+      </nav>
+    </header>
+
+    <!-- ============================ -->
+    <!-- PANELS & OVERLAY -->
+    <!-- ============================ -->
+    <div class="panel-overlay"></div>
+
+    <!-- [P] Settings Panel -->
+    <aside id="settings-panel" class="app-panel">
+      <header class="panel-header">
+        <h2><i class="fas fa-cog"></i> Settings</h2>
+        <button class="close-panel-btn btn-icon">
+          <i class="fas fa-times"></i>
+        </button>
+      </header>
+      <div class="panel-content">
+        {% if current_user.is_authenticated %}
+        <section class="panel-section">
+          <h3 class="panel-section-title">Profile & Personal Details</h3>
+          <form
+            action="{{ url_for('update_profile') }}"
+            method="POST"
+            class="auth-form"
+            novalidate
+          >
+            {{ profile_form.hidden_tag() }}
+            <div class="grid grid-cols-2" style="gap: var(--space-md)">
+              <!-- 8 PROFILE FIELDS -->
+              <div class="form-group" style="grid-column: 1 / -1">
+                {{ profile_form.full_name.label(class="form-label") }} {{
+                profile_form.full_name(class="form-input",
+                value=current_user.full_name or '') }}
+              </div>
+              <div class="form-group">
+                {{ profile_form.username.label(class="form-label") }} {{
+                profile_form.username(class="form-input",
+                value=current_user.username or '') }}
+              </div>
+              <div class="form-group">
+                {{ profile_form.phone_number.label(class="form-label") }} {{
+                profile_form.phone_number(class="form-input",
+                value=current_user.phone_number or '') }}
+              </div>
+              <div class="form-group" style="grid-column: 1 / -1">
+                {{ profile_form.email.label(class="form-label") }} {{
+                profile_form.email(class="form-input", value=current_user.email
+                or '') }}
+              </div>
+              <hr class="form-divider" />
+              <div class="form-group" style="grid-column: 1 / -1">
+                {{ profile_form.address_line_1.label(class="form-label") }} {{
+                profile_form.address_line_1(class="form-input",
+                value=current_user.address_line_1 or '') }}
+              </div>
+              <div class="form-group" style="grid-column: 1 / -1">
+                {{ profile_form.address_line_2.label(class="form-label") }} {{
+                profile_form.address_line_2(class="form-input",
+                value=current_user.address_line_2 or '') }}
+              </div>
+              <div class="form-group">
+                {{ profile_form.city.label(class="form-label") }} {{
+                profile_form.city(class="form-input", value=current_user.city or
+                '') }}
+              </div>
+              <div class="form-group">
+                {{ profile_form.zip_code.label(class="form-label") }} {{
+                profile_form.zip_code(class="form-input",
+                value=current_user.zip_code or '') }}
+              </div>
+            </div>
+            {{ profile_form.submit(class="btn btn-primary", style="width: 100%;
+            margin-top: 1rem;") }}
+          </form>
+        </section>
+
+        <section class="panel-section">
+          <h3 class="panel-section-title">Security & Preferences</h3>
+          <div class="list">
+            <!-- 4 MORE FEATURED SETTINGS -->
+            <a href="#" class="list-item"
+              ><div class="list-item-icon"><i class="fas fa-key"></i></div>
+              <span class="list-item-title">Change Password</span
+              ><i class="fas fa-chevron-right list-item-chevron"></i
+            ></a>
+            <a href="#" class="list-item"
+              ><div class="list-item-icon">
+                <i class="fas fa-mobile-alt"></i>
+              </div>
+              <span class="list-item-title">Two-Factor Authentication</span
+              ><i class="fas fa-chevron-right list-item-chevron"></i
+            ></a>
+            <a href="#" class="list-item"
+              ><div class="list-item-icon"><i class="fas fa-bell"></i></div>
+              <span class="list-item-title">Notification Settings</span
+              ><i class="fas fa-chevron-right list-item-chevron"></i
+            ></a>
+            <a href="#" class="list-item"
+              ><div class="list-item-icon"><i class="fas fa-link"></i></div>
+              <span class="list-item-title">Connected Accounts</span
+              ><i class="fas fa-chevron-right list-item-chevron"></i
+            ></a>
+          </div>
+        </section>
+        {% endif %}
+      </div>
+    </aside>
+
+    <!-- [P] Notifications Panel -->
+    <aside id="notifications-panel" class="app-panel">
+      <header class="panel-header">
+        <h2><i class="fas fa-bell"></i> Notifications</h2>
+        <button class="close-panel-btn btn-icon">
+          <i class="fas fa-times"></i>
+        </button>
+      </header>
+      <div class="panel-content">
+        {% if recent_notifications %}
+        <div class="list">
+          {% for n in recent_notifications %} {% set is_credit = n.type in
+          ['receive', 'admin_deposit'] %} {% set is_system = n.type in
+          ['welcome_message', 'admin_message'] %}
+          <div class="list-item">
+            <div
+              class="list-item-icon {{ 'icon-credit' if is_credit else 'icon-info' if is_system else 'icon-debit' }}"
+            >
+              {% if is_credit %}<i class="fas fa-arrow-down"></i> {% elif
+              is_system %}<i class="fas fa-info-circle"></i> {% else %}<i
+                class="fas fa-arrow-up"
+              ></i>
+              {% endif %}
+            </div>
+            <div class="list-item-content">
+              {% if n.type == 'welcome_message' %}
+              <span class="list-item-title">Welcome to the Platform!</span>
+              <p class="list-item-text">{{ n.notes }}</p>
+              {% elif n.type == 'admin_message' %}
+              <span class="list-item-title">A Message from Support</span>
+              <p class="list-item-text">{{ n.notes }}</p>
+              {% else %}
+              <span class="list-item-title"
+                >{{ n.type.replace('_', ' ').title() }}</span
+              >
+              <span class="list-item-subtitle"
+                >{{ n.timestamp.strftime('%b %d at %I:%M %p') }}</span
+              >
+              {% endif %}
+            </div>
+            {% if not is_system %}
+            <div
+              class="list-item-value {{ 'value-credit' if is_credit else 'value-debit' }}"
+            >
+              {{ '+' if is_credit else '-' }}${{ "%.2f"|format(n.amount) }}
+            </div>
+            {% endif %}
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+          <i class="fas fa-bell-slash"></i>
+          <strong>All Caught Up!</strong>
+          <p>You have no new notifications.</p>
+        </div>
+        {% endif %}
+      </div>
+    </aside>
+
+    <!-- [P] Support Panel -->
+    <aside id="support-panel" class="app-panel">
+      <header class="panel-header">
+        <h2><i class="fas fa-headset"></i> Support Center</h2>
+        <button class="close-panel-btn btn-icon">
+          <i class="fas fa-times"></i>
+        </button>
+      </header>
+      <div class="panel-content">
+        <section class="panel-section">
+          <h3 class="panel-section-title">Send a Secure Message</h3>
+          <p class="panel-section-subtitle">
+            Our team is here to help. We'll respond within one business day.
+          </p>
+          <form id="secure-message-form" class="auth-form">
+            <div class="form-group">
+              <label for="message_subject" class="form-label"
+                >How can we help?</label
+              >
+              <select id="message_subject" class="form-input">
+                <option>General Inquiry</option>
+                <option>Question About a Transaction</option>
+                <option>Technical Support</option>
+                <!-- 3 MORE SUBJECTS -->
+                <option>Feature Request or Feedback</option>
+                <option>Report a Security Concern</option>
+                <option>Account Upgrade Question</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="message_body" class="form-label"
+                >Message Details</label
+              >
+              <textarea
+                id="message_body"
+                rows="5"
+                class="form-input"
+                placeholder="Please provide as much detail as possible..."
+              ></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary" style="width: 100%">
+              Send Message
+            </button>
+          </form>
+        </section>
+        <section class="panel-section">
+          <h3 class="panel-section-title">Help & Resources</h3>
+          <p class="panel-section-subtitle">
+            Find answers to common questions and learn more about our platform.
+          </p>
+          <div class="list">
+            <!-- 3 MORE FEATURED SECTIONS -->
+            <a href="#" class="list-item">
+              <div class="list-item-icon"><i class="fas fa-book-open"></i></div>
+              <div class="list-item-content">
+                <strong class="list-item-title">Getting Started Guide</strong
+                ><span class="list-item-subtitle"
+                  >A step-by-step walkthrough for new users.</span
+                >
+              </div>
+            </a>
+            <a href="#" class="list-item">
+              <div class="list-item-icon">
+                <i class="fas fa-shield-alt"></i>
+              </div>
+              <div class="list-item-content">
+                <strong class="list-item-title">Security Center</strong
+                ><span class="list-item-subtitle"
+                  >Learn how we protect your data.</span
+                >
+              </div>
+            </a>
+            <a href="#" class="list-item">
+              <div class="list-item-icon">
+                <i class="fas fa-question-circle"></i>
+              </div>
+              <div class="list-item-content">
+                <strong class="list-item-title"
+                  >Frequently Asked Questions</strong
+                ><span class="list-item-subtitle"
+                  >Find answers to common questions.</span
+                >
+              </div>
+            </a>
+          </div>
+        </section>
+      </div>
+    </aside>
+
+    <!-- ============================ -->
+    <!-- MAIN CONTENT & FOOTER -->
+    <!-- ============================ -->
+    <main class="main-content-area">
+      {% with messages = get_flashed_messages(with_categories=true) %} {% if
+      messages %}
+      <div class="container" style="padding-top: var(--space-lg)">
+        {% for category, message in messages %}
+        <div
+          class="alert alert-{{ 'error' if category == 'danger' else category }}"
+        >
+          <i
+            class="fas fa-{% if category == 'success' %}check-circle{% elif category == 'danger' %}exclamation-triangle{% else %}info-circle{% endif %}"
+          ></i>
+          <span>{{ message }}</span>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %} {% endwith %} {% block content %}{% endblock %}
+    </main>
+
+    <!-- Before </footer> -->
+    {% if current_user.is_authenticated %}
+    <!-- ============================ -->
+    <!-- LIVE CHAT WIDGET -->
+    <!-- ============================ -->
+    <div id="chat-widget-container">
+      <!-- The button that is always visible -->
+      <button id="chat-widget-toggle" class="chat-toggle-btn">
+        <i class="fas fa-comment-dots"></i>
+        <!-- Default icon -->
+        <i class="fas fa-times"></i>
+        <!-- Icon for when active -->
+      </button>
+
+      <!-- The chat window, hidden by default -->
+      <div id="chat-window" class="chat-window">
+        <header class="chat-header">
+          <h3><i class="fas fa-headset"></i> Support Chat</h3>
+          <button id="chat-close-btn" class="btn-icon">
+            <i class="fas fa-times"></i>
+          </button>
+        </header>
+
+        <div id="chat-messages" class="chat-messages">
+          <!-- Messages will be injected here by JavaScript -->
+          <div class="chat-message is-system">
+            <span>Welcome! An agent will be with you shortly.</span>
+          </div>
+        </div>
+
+        <footer class="chat-input-area">
+          <input
+            type="text"
+            id="chat-input"
+            class="form-input"
+            placeholder="Type your message..."
+          />
+          <button id="chat-send-btn" class="btn btn-primary">
+            <i class="fas fa-paper-plane"></i>
+          </button>
+        </footer>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- ============================ -->
+    <!-- FOOTER -->
+    <!-- ============================ -->
+    <footer class="app-footer">
+      <div class="container footer-content">
+        <div class="footer-logo">
+          <i class="fas fa-leaf"></i> Well Care Spendables
+        </div>
+        <p class="footer-tagline">
+          Your partner in achieving financial wellness.
+        </p>
+        <div class="footer-links">
+          <a href="#">Privacy Policy</a>
+          <span>&bull;</span>
+          <a href="#">Terms of Service</a>
+          <span>&bull;</span>
+          <a href="#">Contact Us</a>
+        </div>
+        <p class="footer-copyright">
+          &copy; {{ current_year }} Well Care Spendables. All rights reserved.
+        </p>
+      </div>
+    </footer>
+
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    {% assets "js_all" %}
+    <script src="{{ ASSET_URL }}"></script>
+    {% endassets %} {% block extra_js %}{% endblock %}
+  </body>
+</html>

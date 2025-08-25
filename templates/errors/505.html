@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}Server Error{% endblock %}
+
+{% block content %}
+<div class="section-padding" style="text-align: center;">
+    <div class="container">
+        <h1 style="font-size: 5rem; color: var(--c-danger);"><i class="fas fa-server"></i> 500</h1>
+        <h2>Internal Server Error</h2>
+        <p>Sorry, something went wrong on our end. We are looking into it.</p>
+        <a href="{{ url_for('index') }}" class="btn btn-secondary">
+            <i class="fas fa-home"></i> Go to Homepage
+        </a>
+    </div>
+</div>
+{% endblock %}

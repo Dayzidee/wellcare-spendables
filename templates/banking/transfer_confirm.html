@@ -1,0 +1,59 @@
+{% extends 'base.html' %} {% block title %}Confirm Transfer{% endblock %} {%
+block content %}
+<main class="section">
+  <div class="container" style="max-width: 550px">
+    <div class="card auth-card anim-fade-in-up">
+      <header class="auth-header">
+        <div class="auth-logo"><i class="fas fa-check-double"></i></div>
+        <h2>Confirm Your Transfer</h2>
+        <p>Please review the details below. This action cannot be undone.</p>
+      </header>
+
+      <div class="summary-list">
+        <div class="summary-list-item">
+          <span>From Account</span>
+          <strong
+            ><i class="fas fa-arrow-alt-circle-up"></i> {{
+            details.from_account_name }}</strong
+          >
+        </div>
+        <div class="summary-list-item">
+          <span>To Recipient</span>
+          <strong>
+            <i class="fas fa-arrow-alt-circle-down"></i>
+            {% if details.type == 'internal' %} {{ details.to_account_name }} {%
+            else %} {{ details.recipient_name }} (...{{
+            details.recipient_account_number[-4:] }}) {% endif %}
+          </strong>
+        </div>
+        {% if details.memo %}
+        <div class="summary-list-item">
+          <span>Memo</span>
+          <strong><i class="fas fa-sticky-note"></i> {{ details.memo }}</strong>
+        </div>
+        {% endif %}
+        <div class="summary-list-item is-total">
+          <span>Amount to Transfer</span>
+          <strong class="total-amount"
+            >${{ "%.2f"|format(details.amount|float) }}</strong
+          >
+        </div>
+      </div>
+
+      <form method="POST" class="auth-form" style="margin-top: var(--space-xl)">
+        <!-- Use btn-accent as the primary positive action -->
+        <button type="submit" class="btn btn-accent" style="width: 100%">
+          <i class="fas fa-paper-plane"></i> Confirm & Send Funds
+        </button>
+        <a
+          href="{{ url_for('transfer') }}"
+          class="btn btn-secondary"
+          style="width: 100%"
+        >
+          <i class="fas fa-times"></i> Cancel Transfer
+        </a>
+      </form>
+    </div>
+  </div>
+</main>
+{% endblock %}

@@ -1,0 +1,158 @@
+<!-- START OF REVAMPED admin.html -->
+{% extends 'base.html' %} {% block title %}Admin Panel{% endblock %} {% block
+content %}
+<main class="section-padding">
+  <div class="container" style="max-width: 1100px">
+    <div class="admin-header" style="margin-bottom: 2rem; text-align: center">
+      <h1 class="section-title">
+        <i class="fas fa-user-shield"></i> Bank Admin Panel
+      </h1>
+      <p class="section-intro">
+        Manage customer accounts, transactions, and system activities.
+      </p>
+    </div>
+
+    <!-- Customer Management -->
+    <div class="admin-card">
+      <h2 class="subsection-title">
+        <i class="fas fa-users"></i> Customer Management
+      </h2>
+      <div class="admin-table-container">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Customer Info</th>
+              <th>Account Number</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for customer in customers %}
+            <tr>
+              <td>{{ customer.id }}</td>
+              <td>
+                <strong>{{ customer.username }}</strong>
+                {% if customer.is_admin %}<span
+                  class="status-badge status-admin"
+                  >Admin</span
+                >{% endif %}
+                <br />
+                <small
+                  >Tier:
+                  <span class="status-badge status-{{ customer.account_tier }}">
+                    {{ customer.account_tier.title() }}
+                  </span>
+                </small>
+              </td>
+              <td class="monospace-font">{{ customer.account_number }}</td>
+              <td class="action-cell">
+                <a
+                  href="{{ url_for('admin_edit_customer', customer_id=customer.id) }}"
+                  class="btn btn-primary btn-sm"
+                  ><i class="fas fa-edit"></i> Manage</a
+                >
+                <!-- === NEW CHAT BUTTON === -->
+                <a
+                  href="{{ url_for('admin_chat', customer_id=customer.id) }}"
+                  class="btn btn-accent btn-sm"
+                  ><i class="fas fa-comments"></i> Chat</a
+                >
+                {% if customer.id != current_user.id %}
+                <form
+                  action="{{ url_for('admin_delete_customer', customer_id=customer.id) }}"
+                  method="POST"
+                  onsubmit="return confirm('Are you sure? This will permanently delete the customer and all associated data.');"
+                >
+                  <button type="submit" class="btn btn-danger btn-sm">
+                    <i class="fas fa-trash"></i> Delete
+                  </button>
+                </form>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Pending Upgrades & Submissions (Side-by-side layout) -->
+    <div
+      class="admin-grid"
+      style="
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 2rem;
+        margin-top: 2rem;
+      "
+    >
+      <!-- Pending Premier Upgrades -->
+      <div class="admin-card">
+        <h2 class="subsection-title">
+          <i class="fas fa-user-clock"></i> Pending Premier Upgrades
+        </h2>
+        {% if pending_upgrades %}
+        <ul class="admin-list">
+          {% for user in pending_upgrades %}
+          <li class="admin-list-item">
+            <div class="item-info">
+              <strong>{{ user.username }}</strong>
+              <small>Joined: {{ user.date_joined.strftime('%Y-%m-%d') }}</small>
+            </div>
+            <form
+              action="{{ url_for('admin_approve_upgrade', customer_id=user.id) }}"
+              method="POST"
+            >
+              <button type="submit" class="btn btn-success btn-sm">
+                <i class="fas fa-check"></i> Approve
+              </button>
+            </form>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="empty-state-text">No pending account upgrades.</p>
+        {% endif %}
+      </div>
+
+      <!-- Upgrade Request Submissions -->
+      <div class="admin-card">
+        <h2 class="subsection-title">
+          <i class="fas fa-file-invoice-dollar"></i> Upgrade Request Submissions
+        </h2>
+        {% if submission_files %}
+        <ul class="admin-list">
+          {% for file in submission_files %}
+          <li class="admin-list-item">
+            <div class="item-info">
+              <i class="fas fa-file-alt"></i>
+              <strong>{{ file }}</strong>
+            </div>
+            <div class="action-cell">
+              <a
+                href="{{ url_for('admin_download_file', filename=file) }}"
+                class="btn btn-secondary btn-sm"
+                ><i class="fas fa-download"></i
+              ></a>
+              <form
+                action="{{ url_for('admin_delete_submission', filename=file) }}"
+                method="POST"
+                onsubmit="return confirm('Delete this submission file?');"
+              >
+                <button type="submit" class="btn btn-danger btn-sm">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </form>
+            </div>
+          </li>
+          {% endfor %}
+        </ul>
+        {% else %}
+        <p class="empty-state-text">No submission files found.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</main>
+{% endblock %}

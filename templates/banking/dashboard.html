@@ -1,0 +1,340 @@
+{% extends 'base.html' %} {% block title %}Dashboard{% endblock %} {% block
+content %}
+<div class="section">
+  <div class="container">
+    <!-- ============================ -->
+    <!-- 1. DASHBOARD HEADER -->
+    <!-- ============================ -->
+    <header class="dashboard-header">
+      <div>
+        <h1 class="dashboard-title">
+          Welcome, <span class="highlight">{{ current_user.username }}</span>
+        </h1>
+        <p class="dashboard-subtitle">
+          Here's your financial overview for today.
+        </p>
+      </div>
+      <div class="account-tier">
+        <i class="fas fa-gem"></i>
+        <span>{{ current_user.account_tier.title() }} Tier</span>
+      </div>
+    </header>
+
+    <!-- ============================ -->
+    <!-- 2. FINANCIAL SUMMARY -->
+    <!-- ============================ -->
+    <section class="card summary-card anim-fade-in-up">
+      <div class="summary-item">
+        <div class="summary-icon icon-accent">
+          <i class="fas fa-wallet"></i>
+        </div>
+        <div>
+          <span class="summary-label">Total Balance</span>
+          <span class="summary-value">${{ "%.2f"|format(total_balance) }}</span>
+        </div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-icon icon-info">
+          <i class="fas fa-university"></i>
+        </div>
+        <div>
+          <span class="summary-label">Accounts</span>
+          <span class="summary-value">{{ accounts|length }}</span>
+        </div>
+      </div>
+      <div class="summary-item">
+        <div class="summary-icon icon-warning">
+          <i class="fas fa-hourglass-half"></i>
+        </div>
+        <div>
+          <span class="summary-label">Pending</span>
+          <span class="summary-value">0</span>
+        </div>
+      </div>
+      <a href="{{ url_for('transfer') }}" class="btn btn-primary summary-cta">
+        <i class="fas fa-exchange-alt"></i> New Transfer
+      </a>
+    </section>
+
+    <!-- ============================ -->
+    <!-- 3. MAIN DASHBOARD GRID -->
+    <!-- ============================ -->
+    <div class="dashboard-grid">
+      <!-- [A] Main Content Column -->
+      <main class="dashboard-main">
+        <!-- Analytics Card -->
+        <section class="card card--interactive anim-fade-in-up">
+          <header class="card-header">
+            <h2 class="card-title">Spending Analytics</h2>
+            <select class="form-input" style="width: auto">
+              <option>Last 30 Days</option>
+              <option>Last 90 Days</option>
+            </select>
+          </header>
+          <div class="chart-container">
+            <canvas id="spendingChart"></canvas>
+          </div>
+        </section>
+
+        <!-- ============================ -->
+        <!-- 2B. ACCOUNT IDENTIFIER -->
+        <!-- ============================ -->
+        <section class="identifier-card anim-fade-in-up">
+          <div class="list-item-icon icon-info">
+            <i class="fas fa-hashtag"></i>
+          </div>
+          <div class="identifier-content">
+            <span class="identifier-label">Your Official Account Number</span>
+            {% set acc = current_user.account_number %}
+            <span class="identifier-number"
+              >{{ acc[0:4] }}-{{ acc[4:7] }}-{{ acc[7:10] }}</span
+            >
+            <!-- Hidden raw value for the copy button -->
+            <span id="raw-account-number" style="display: none"
+              >{{ current_user.account_number }}</span
+            >
+          </div>
+          <button id="copy-identifier-btn" class="btn btn-secondary">
+            <i class="fas fa-copy"></i>
+            <span>Copy</span>
+          </button>
+        </section>
+
+        <!-- Accounts Card -->
+        <section class="card card--interactive anim-fade-in-up">
+          <header class="card-header">
+            <h2 class="card-title">Your Accounts</h2>
+          </header>
+          {% if accounts %}
+          <div class="list">
+            {% for account in accounts %}
+            <a href="#" class="list-item">
+              <div class="list-item-icon icon-accent">
+                <i class="fas fa-piggy-bank"></i>
+              </div>
+              <div class="list-item-content">
+                <span class="list-item-title">{{ account.account_name }}</span>
+                <span class="list-item-subtitle"
+                  >{{ account.masked_account_number }}</span
+                >
+              </div>
+              <div class="list-item-value">
+                ${{ "%.2f"|format(account.balance) }}
+              </div>
+            </a>
+            {% endfor %}
+          </div>
+          {% else %}
+    <div class="empty-state">
+        <i class="fas fa-university"></i>
+        <strong>No Accounts Found</strong>
+        <p>It looks like you don't have any accounts yet. Contact support to get started.</p>
+    </div>
+{% endif %}
+        </section>
+
+        <!-- Recent Transactions Card -->
+        <section class="card card--interactive anim-fade-in-up">
+          <header class="card-header">
+            <h2 class="card-title">Recent Transactions</h2>
+            <a href="#" class="btn btn-outline btn-sm">View All</a>
+          </header>
+          {% if recent_transactions %}
+          <div class="list">
+            {% for t in recent_transactions %} {% set is_credit = t.type in
+            ['receive', 'admin_deposit'] %}
+            <div class="list-item">
+              <div
+                class="list-item-icon {{ 'icon-credit' if is_credit else 'icon-debit' }}"
+              >
+                <i
+                  class="fas {{ 'fa-arrow-down' if is_credit else 'fa-arrow-up' }}"
+                ></i>
+              </div>
+              <div class="list-item-content">
+                <span class="list-item-title"
+                  >{{ t.type.replace('_', ' ').title() }}</span
+                >
+                <span class="list-item-subtitle"
+                  >{{ t.timestamp.strftime('%b %d, %Y') }}</span
+                >
+              </div>
+              <div
+                class="list-item-value {{ 'value-credit' if is_credit else 'value-debit' }}"
+              >
+                {{ '+' if is_credit else '-' }}${{ "%.2f"|format(t.amount) }}
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+    <div class="empty-state">
+        <i class="fas fa-receipt"></i>
+        <strong>No Transactions Yet</strong>
+        <p>When you make your first transaction, it will appear here.</p>
+    </div>
+{% endif %}
+        </section>
+      </main>
+
+      <!-- [B] Sidebar Column -->
+      <aside class="dashboard-sidebar">
+        <!-- Quick Actions Card -->
+        <section class="card card--interactive anim-fade-in-up">
+          <header class="card-header">
+            <h2 class="card-title">Quick Actions</h2>
+          </header>
+          <div class="list">
+            {% if current_user.is_admin %}
+            <a href="{{ url_for('admin') }}" class="list-item">
+              <div class="list-item-icon icon-danger">
+                <i class="fas fa-user-shield"></i>
+              </div>
+              <span class="list-item-title">Admin Panel</span>
+              <i class="fas fa-chevron-right list-item-chevron"></i>
+            </a>
+            {% endif %}
+            <a href="#" class="list-item">
+              <div class="list-item-icon icon-accent">
+                <i class="fas fa-file-import"></i>
+              </div>
+              <span class="list-item-title">Import Statement</span>
+              <i class="fas fa-chevron-right list-item-chevron"></i>
+            </a>
+            <a href="#" class="list-item">
+              <div class="list-item-icon icon-warning">
+                <i class="fas fa-bullseye"></i>
+              </div>
+              <span class="list-item-title">Manage Goals</span>
+              <i class="fas fa-chevron-right list-item-chevron"></i>
+            </a>
+          </div>
+        </section>
+
+        <!-- Financial Insights Card -->
+        <section class="card card--interactive anim-fade-in-up">
+          <header class="card-header">
+            <h2 class="card-title">Financial Insights</h2>
+          </header>
+          <div class="list">
+            <div class="list-item">
+              <div class="list-item-icon icon-warning">
+                <i class="fas fa-chart-line"></i>
+              </div>
+              <p class="list-item-text">
+                You've spent <strong>$250.75</strong> on Entertainment, 15% more
+                than last month.
+              </p>
+            </div>
+            <div class="list-item">
+              <div class="list-item-icon icon-success">
+                <i class="fas fa-trophy"></i>
+              </div>
+              <p class="list-item-text">
+                <strong>Goal Alert:</strong> You are <strong>85%</strong> of the
+                way to your "Vacation Fund" goal!
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Inside <aside class="dashboard-sidebar"> -->
+        <!-- Virtual Card -->
+        <section class="anim-fade-in-up">
+          <div class="virtual-card-container">
+            <div class="virtual-card-flipper">
+              <!-- Card Front -->
+              <div class="virtual-card is-front">
+                <button class="card-flip-btn" title="Flip Card">
+                  <i class="fas fa-sync-alt"></i>
+                </button>
+                <div class="card-top">
+                  <span class="card-chip"></span>
+                  <span class="card-logo"><i class="fas fa-leaf"></i> WCS</span>
+                </div>
+                <div id="card-number" class="card-number is-masked">
+                  5555 1234 5678 4242
+                </div>
+                <div class="card-bottom">
+                  <div>
+                    <span class="card-label">Card Holder</span>
+                    <span class="card-name"
+                      >{{ current_user.full_name or current_user.username
+                      }}</span
+                    >
+                  </div>
+                  <div>
+                    <span class="card-label">Expires</span>
+                    <span class="card-name">12/28</span>
+                  </div>
+                </div>
+              </div>
+              <!-- Card Back -->
+              <div class="virtual-card is-back">
+                <button class="card-flip-btn" title="Flip Card">
+                  <i class="fas fa-sync-alt"></i>
+                </button>
+                <div class="card-mag-stripe"></div>
+                <div class="card-cvv-box">
+                  <span class="card-label">CVV</span>
+                  <span id="card-cvv" class="card-cvv is-masked">123</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="card-controls">
+            <label class="form-checkbox">
+              <input type="checkbox" id="show-details-checkbox" />
+              <span>Show Details</span>
+            </label>
+          </div>
+        </section>
+
+      </aside>
+    </div>
+  </div>
+</div>
+{% endblock %} {% block extra_js %}
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Animation Observer
+    const animatedElements = document.querySelectorAll(".anim-fade-in-up");
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.1 }
+    );
+    animatedElements.forEach((el) => observer.observe(el));
+
+    // Chart.js implementation
+    const ctx = document.getElementById("spendingChart");
+    if (ctx) {
+      fetch('{{ url_for("spending_analytics") }}')
+        .then((response) => response.json())
+        .then((data) => {
+          new Chart(ctx, {
+            type: "doughnut",
+            data: data, // Directly use the data object from API
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { position: "right" },
+              },
+              cutout: "70%", // Makes the doughnut thinner and more modern
+            },
+          });
+        })
+        .catch((error) =>
+          console.error("Error fetching analytics data:", error)
+        );
+    }
+  });
+</script>
+{% endblock %}

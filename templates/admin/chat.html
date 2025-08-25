@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+
+{% block body_class %}
+    data-preselected-customer-id="{{ preselected_customer_id or '' }}"
+    data-preselected-session-id="{{ preselected_session_id or '' }}"
+{% endblock %}
+
+{% block title %}Admin Chat Support{% endblock %}
+
+{% block content %}
+<div class="chat-page-layout">
+    <!-- This header is now part of the main page, not the scrollable card -->
+    <header class="page-header container">
+        <h1 class="page-title"><i class="fas fa-headset"></i> Support Chat Dashboard</h1>
+    </header>
+
+    <div class="container admin-chat-container">
+        <!-- Sidebar for conversation list -->
+        <aside class="chat-sidebar">
+            <header class="sidebar-header">
+                <h2>Active Conversations</h2>
+            </header>
+            <div id="session-list" class="list sidebar-list">
+                {% for session in sessions %}
+                <a href="#" class="list-item" data-session-id="{{ session.id }}" data-customer-id="{{ session.customer_id }}">
+                    <div class="list-item-content">
+                        <strong class="list-item-title">{{ session.customer.username }}</strong>
+                        <span class="list-item-subtitle">Status: {{ session.status }}</span>
+                    </div>
+                    <span class="notification-dot is-hidden"></span>
+                </a>
+                {% else %}
+                <p class="empty-state">No active chats.</p>
+                {% endfor %}
+            </div>
+        </aside>
+
+        <!-- Main conversation area -->
+        <main id="chat-conversation-area" class="conversation-main">
+            <!-- Welcome screen, shown by default -->
+            <div id="chat-welcome-screen" class="empty-state">
+                <i class="fas fa-comments"></i>
+                <strong>Select a conversation</strong>
+                <p>Choose a chat from the list on the left to see the message history.</p>
+            </div>
+
+            <!-- Active chat screen, hidden by default -->
+            <div id="chat-active-screen" class="is-hidden">
+                <header class="conversation-header">
+                    <h3 id="chat-active-customer-name"></h3>
+                </header>
+                <!-- This is the only part that will scroll -->
+                <div id="chat-messages" class="messages-container">
+                    <!-- Messages will be injected here -->
+                </div>
+                <!-- The input is now a permanent footer -->
+                <footer class="conversation-footer">
+                    <div class="input-group">
+                        <input type="text" id="chat-input" class="form-input" placeholder="Type your response to the user...">
+                        <button id="chat-send-btn" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i> <span>Send</span>
+                        </button>
+                    </div>
+                </footer>
+            </div>
+        </main>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/admin_chat.js') }}"></script>
+{% endblock %}
