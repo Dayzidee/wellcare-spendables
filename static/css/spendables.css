@@ -335,42 +335,7 @@ a:hover {
   margin-left: var(--space-sm);
   padding-left: var(--space-lg);
 }
-.mobile-menu-btn {
-  display: none;
-}
-
-/* [C] Hamburger Menu (A proper animated component) */
-/* This is a NEW component style block */
-.hamburger-btn {
-  display: none; /* Hidden on desktop */
-  width: 44px;
-  height: 44px;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  padding: var(--space-sm);
-  position: relative; /* For z-index stacking */
-  z-index: 2010; /* Ensure it's above other elements */
-}
-.hamburger-btn span {
-  display: block;
-  width: 24px;
-  height: 3px;
-  background: var(--c-dark);
-  margin: 5px auto;
-  transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
-  border-radius: 3px;
-}
-/* Animation for when the menu is active (toggled via JS) */
-.hamburger-btn.is-active span:nth-child(1) {
-  transform: rotate(45deg) translate(5px, 5px);
-}
-.hamburger-btn.is-active span:nth-child(2) {
-  opacity: 0;
-}
-.hamburger-btn.is-active span:nth-child(3) {
-  transform: rotate(-45deg) translate(6px, -6px);
-}
+/* All hamburger and mobile navigation styles will be rebuilt from scratch. */
 
 
 
@@ -892,79 +857,88 @@ a.list-item:hover {
   color: var(--c-border);
 }
 
-/* --- REPLACE the existing Mobile Navigation styles with this superior version --- */
-/* [JS] Mobile Navigation (Enhanced slide-in panel) */
-@media (max-width: 992px) { /* Use a wider breakpoint for nav collapse */
-    .nav-links {
-        /* --- On Mobile, it becomes a slide-in panel --- */
-        position: fixed;
-        top: 0;
-        right: 0;
-        width: min(400px, 90vw); /* Responsive width: max 400px, or 90% of screen */
-        height: 100%;
-        background-color: var(--c-surface);
-        flex-direction: column;
-        align-items: flex-start; /* Left-align content */
-        padding: var(--space-2xl) var(--space-xl);
-        box-shadow: var(--shadow-lg);
-        border-left: 1px solid var(--c-border);
-        
-        /* Start off-screen to the right */
-        transform: translateX(100%);
-        visibility: hidden;
-        transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), visibility 0.4s;
-        z-index: 2000; /* Below the hamburger, above the overlay */
-    }
-    
-    
-    .nav-links.is-active {
-        transform: translateX(0);
-        visibility: visible;
-    }
+/* ==========================================================================
+   8. REBUILT MOBILE NAVIGATION
+   ========================================================================== */
 
-    .nav-links a,
-    .nav-links .user-greeting {
-        padding: var(--space-md) 0;
-        text-align: left;
-        width: 100%;
-        font-size: 1.25rem;
-        font-weight: 600;
-        color: var(--c-dark);
-        border-bottom: 1px solid var(--c-border);
-    }
-    .nav-links .header-icon-group {
-        border: none;
-        padding: var(--space-md) 0;
-        margin: var(--space-md) 0;
-        justify-content: flex-start;
-        width: 100%;
-        border-top: 1px solid var(--c-border);
-        border-bottom: 1px solid var(--c-border);
-        gap: var(--space-lg);
-    }
-    .nav-links a:hover {
-        color: var(--c-accent);
-    }
-    .nav-links a.is-active {
-        color: var(--c-accent);
-        font-weight: 700;
-    }
-    .nav-links .header-icon-group {
-        display: none; /* Hide the desktop icon group on mobile */
-    }
+.hamburger-btn {
+  display: none; /* Hidden on desktop */
+  position: relative;
+  z-index: 1010; /* Above nav links */
+  width: 44px;
+  height: 44px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
 
-    /* Push Login/Logout to the bottom of the panel */
-   .nav-links .btn {
-        margin-top: auto; /* This is the key to pushing it down */
-        width: 100%;
-        text-align: center;
-        padding: var(--space-md) 0;
-        font-size: 1.1rem;
-    }
-    /* Show the hamburger menu on tablets and smaller */
-    .hamburger-btn {
-        display: block; 
-    }
+.hamburger-btn span {
+  display: block;
+  width: 24px;
+  height: 3px;
+  background: var(--c-dark);
+  margin: 5px auto;
+  transition: all 0.3s ease-in-out;
+  border-radius: 3px;
+}
+
+.hamburger-btn.is-active span:nth-child(1) {
+  transform: translateY(8px) rotate(45deg);
+}
+.hamburger-btn.is-active span:nth-child(2) {
+  opacity: 0;
+}
+.hamburger-btn.is-active span:nth-child(3) {
+  transform: translateY(-8px) rotate(-45deg);
+}
+
+
+@media (max-width: 768px) {
+  .app-nav {
+    position: relative; /* Needed for absolute positioning of nav-links */
+  }
+
+  .hamburger-btn {
+    display: block; /* Show the hamburger on mobile */
+  }
+
+  .nav-links {
+    display: none; /* Hide the nav links by default */
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: var(--c-surface);
+    flex-direction: column;
+    align-items: stretch;
+    padding: var(--space-md);
+    border-top: 1px solid var(--c-border);
+    box-shadow: var(--shadow-lg);
+    gap: 0;
+  }
+
+  .nav-links.is-active {
+    display: flex; /* Show the dropdown */
+  }
+
+  .nav-links a {
+    padding: var(--space-md);
+    text-align: center;
+    width: 100%;
+    border-bottom: 1px solid var(--c-border);
+  }
+  .nav-links a:last-child {
+    border-bottom: none;
+  }
+
+  .nav-links .header-icon-group {
+    display: none; /* Hide desktop-only icons */
+  }
+
+  .nav-links .btn {
+    width: 100%;
+    margin-top: var(--space-sm);
+  }
 }
 .feature-title {
   font-size: 1.5rem;
