@@ -50,8 +50,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       this.socket.on("connect", () => {
         console.log("💬 Admin connected to chat server");
-        // Tell the server this is an admin/agent
-        this.socket.emit("agent_join_admin_channel");
       });
 
       this.socket.on("chat_history", (data) => {
@@ -59,10 +57,25 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       this.socket.on("receive_message", (data) => {
+        // If the message is for the currently active chat, display it.
+        // This also handles the case where a new session is created, and the first message comes in.
         if (data.session_id == this.activeSessionId) {
           this.addMessage(data.message, data.sender_type, data.timestamp);
         } else {
+          // Otherwise, show a notification dot on the corresponding session in the list.
           this.showNotificationDot(data.session_id);
+        }
+      });
+
+      // Listen for the server sending back a new session ID
+      this.socket.on("receive_session_id", (data) => {
+        console.log(`Received new session ID: ${data.session_id}`);
+        this.activeSessionId = data.session_id;
+
+        // Also update the session list item if it exists
+        const sessionItem = this.sessionList.querySelector(`[data-customer-id="${this.activeCustomerId}"]`);
+        if (sessionItem && !sessionItem.dataset.sessionId) {
+            sessionItem.dataset.sessionId = data.session_id;
         }
       });
 
@@ -158,15 +171,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
     sendMessage() {
       const message = this.chatInput.value.trim();
-      if (message && this.activeSessionId) {
+      // Allow sending if there is a message and an active customer, even if the session hasn't been created yet.
+      if (message && this.activeCustomerId) {
         const data = {
           message: message,
-          session_id: this.activeSessionId,
-          customer_id: this.activeCustomerId, // The agent needs to tell the server who to send it to
+          session_id: this.activeSessionId, // This can be null for the first message
+          customer_id: this.activeCustomerId,
         };
         this.socket.emit("agent_send_message", data);
-        this.addMessage(message, "agent"); // Optimistically add agent's message
+
+        // Optimistically add the message to the UI.
+        this.addMessage(message, "agent");
         this.chatInput.value = "";
+
+        // If we just sent the first message, clear the placeholder text.
+        const placeholder = this.messagesContainer.querySelector('.empty-state');
+        if (placeholder) {
+            placeholder.remove();
+        }
       }
     },
 

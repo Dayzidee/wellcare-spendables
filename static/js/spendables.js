@@ -29,7 +29,7 @@ const App = {
 
   /**
    * Handles the mobile navigation menu (hamburger).
-   * Toggles 'is-active' classes for CSS-driven animations.
+   * Toggles 'is-active' classes for the slide-in panel animation.
    */
   mobileNavigation() {
     const menuTrigger = document.getElementById("mobile-menu-trigger");
@@ -45,11 +45,13 @@ const App = {
         menuTrigger.classList.remove("is-active");
         overlay.classList.remove("is-active");
         document.body.style.overflow = "";
+        menuTrigger.setAttribute("aria-expanded", "false");
       } else {
         navLinks.classList.add("is-active");
         menuTrigger.classList.add("is-active");
         overlay.classList.add("is-active");
         document.body.style.overflow = "hidden";
+        menuTrigger.setAttribute("aria-expanded", "true");
       }
     };
 
@@ -61,15 +63,16 @@ const App = {
     // Use the overlay to close the menu
     overlay.addEventListener("click", () => toggleMenu(true));
 
-    document.addEventListener("click", (e) => {
-      if (!navLinks.contains(e.target) && !menuTrigger.contains(e.target)) {
-        toggleMenu(true); // Force close
+    // Close menu with the 'Escape' key
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && navLinks.classList.contains("is-active")) {
+        toggleMenu(true);
       }
     });
 
     // Add resize handler to auto-close menu on larger screens
     window.addEventListener("resize", () => {
-      if (window.innerWidth > 768) {
+      if (window.innerWidth > 992) {
         toggleMenu(true);
       }
     });

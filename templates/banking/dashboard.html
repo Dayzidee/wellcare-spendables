@@ -66,14 +66,22 @@ content %}
         <section class="card card--interactive anim-fade-in-up">
           <header class="card-header">
             <h2 class="card-title">Spending Analytics</h2>
-            <select class="form-input" style="width: auto">
+            <select class="form-input" style="width: auto" {% if not recent_transactions %}disabled{% endif %}>
               <option>Last 30 Days</option>
               <option>Last 90 Days</option>
             </select>
           </header>
+          {% if recent_transactions %}
           <div class="chart-container">
             <canvas id="spendingChart"></canvas>
           </div>
+          {% else %}
+          <div class="empty-state">
+            <i class="fas fa-chart-pie"></i>
+            <strong>No Spending Data Yet</strong>
+            <p>Your spending analytics will appear here once you have transactions.</p>
+          </div>
+          {% endif %}
         </section>
 
         <!-- ============================ -->
@@ -216,6 +224,7 @@ content %}
           <header class="card-header">
             <h2 class="card-title">Financial Insights</h2>
           </header>
+          {% if recent_transactions %}
           <div class="list">
             <div class="list-item">
               <div class="list-item-icon icon-warning">
@@ -236,6 +245,13 @@ content %}
               </p>
             </div>
           </div>
+          {% else %}
+          <div class="empty-state">
+            <i class="fas fa-lightbulb"></i>
+            <strong>No Insights to Show</strong>
+            <p>Personalized financial insights will be generated as you use your account.</p>
+          </div>
+          {% endif %}
         </section>
 
         <!-- Inside <aside class="dashboard-sidebar"> -->

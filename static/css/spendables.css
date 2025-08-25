@@ -565,18 +565,41 @@ a:hover {
     padding-right: var(--space-md);
   }
 
-  /* Navigation */
-  .nav-links {
-    display: none;
-  }
-  .mobile-menu-btn {
-    display: inline-flex;
-  }
+  /* Navigation rules are now handled by the more specific slide-in panel styles at the 992px breakpoint. */
 
   /* Grids */
   .grid-cols-2,
   .grid-cols-3 {
     grid-template-columns: 1fr;
+  }
+
+  .hero-buttons {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+/* Further refinements for very small screens */
+@media (max-width: 480px) {
+  .section {
+    /* Reduce vertical spacing on the smallest devices */
+    padding-top: var(--space-xl);
+    padding-bottom: var(--space-xl);
+  }
+
+  .hero-title {
+    font-size: 2rem;
+  }
+
+  .hero-subtitle {
+    font-size: 1.1rem;
+    margin-bottom: var(--space-lg);
+  }
+
+  .btn-lg {
+    padding: var(--space-md) var(--space-lg);
+    font-size: 1rem;
   }
 }
 
@@ -1009,6 +1032,259 @@ a.list-item:hover {
   text-align: right;
 }
 
+/* [C] FAQ Section */
+.faq-container {
+  max-width: 750px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+.faq-item {
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-sm);
+  background-color: var(--c-surface);
+  transition: var(--transition-fast);
+}
+.faq-item[open] {
+  background-color: hsl(var(--hue-silver), 20%, 98%);
+}
+.faq-item[open] summary {
+  color: var(--c-accent);
+  font-weight: 700;
+}
+.faq-question {
+  font-size: 1.1rem;
+  font-weight: 600;
+  padding: var(--space-md);
+  cursor: pointer;
+  list-style: none; /* Remove default marker */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: var(--transition-fast);
+}
+.faq-question::-webkit-details-marker {
+  display: none; /* Hide for Safari */
+}
+.faq-question:hover {
+  color: var(--c-accent);
+}
+.faq-question::after {
+  content: '+';
+  font-family: var(--font-mono);
+  font-size: 1.5rem;
+  font-weight: 400;
+  color: var(--c-accent);
+  transition: transform var(--transition-std);
+}
+.faq-item[open] .faq-question::after {
+  transform: rotate(45deg);
+  content: '×'; /* Using a multiplication sign for a cleaner X */
+}
+.faq-answer {
+  padding: 0 var(--space-md) var(--space-lg) var(--space-md);
+  color: var(--c-text-secondary);
+  line-height: 1.7;
+}
+.faq-answer p {
+  margin: 0;
+  max-width: 100%;
+}
+
+/* ==========================================================================
+   8. PAGE-SPECIFIC STYLES: ADMIN
+   ========================================================================== */
+
+/* [C] Admin Panel Layout */
+.admin-header {
+  text-align: center;
+  margin-bottom: var(--space-xl);
+  padding-bottom: var(--space-lg);
+  border-bottom: 1px solid var(--c-border);
+}
+
+.admin-card {
+  /* Extending the .card component */
+  background: var(--c-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: var(--space-lg);
+  border: 1px solid var(--c-border);
+}
+
+.admin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: var(--space-lg);
+  margin-top: var(--space-lg);
+}
+
+.admin-card .subsection-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin-bottom: var(--space-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+/* [C] Admin Table */
+.admin-table-container {
+  overflow-x: auto; /* For responsiveness */
+}
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+.admin-table th, .admin-table td {
+  padding: var(--space-md);
+  text-align: left;
+  border-bottom: 1px solid var(--c-border);
+}
+.admin-table th {
+  background-color: var(--c-bg);
+  font-weight: 600;
+}
+.admin-table tbody tr:hover {
+  background-color: hsl(var(--hue-silver), 20%, 98%);
+}
+.admin-table .monospace-font {
+  font-family: var(--font-mono);
+}
+.admin-table .action-cell {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+/* [C] Status Badges */
+.status-badge {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 50px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.status-badge.status-admin {
+  background-color: hsl(var(--hue-danger), 15%);
+  color: hsl(var(--hue-danger), 70%, 40%);
+}
+.status-badge.status-premier {
+  background-color: hsl(var(--hue-gold), 20%);
+  color: hsl(var(--hue-gold), 80%, 30%);
+}
+.status-badge.status-standard {
+  background-color: hsl(var(--hue-silver), 20%);
+  color: hsl(var(--hue-silver), 40%, 40%);
+}
+.status-badge.status-pending {
+  background-color: hsl(var(--hue-warning), 20%);
+  color: hsl(var(--hue-warning), 80%, 30%);
+}
+
+/* [C] Admin List */
+.admin-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+.admin-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-sm);
+  border-radius: var(--radius-md);
+  transition: var(--transition-fast);
+}
+.admin-list-item:hover {
+  background-color: var(--c-bg);
+}
+.admin-list-item .item-info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+.admin-list-item .item-info small {
+  color: var(--c-text-secondary);
+}
+.empty-state-text {
+    color: var(--c-text-secondary);
+    padding: var(--space-md) 0;
+}
+
+/* [C] Admin Chat Page */
+.admin-chat-container {
+    display: grid;
+    grid-template-columns: 320px 1fr; /* Sidebar and main content */
+    gap: var(--space-lg);
+    height: calc(85vh - 100px); /* Adjust height to fit viewport */
+    background-color: var(--c-surface);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--c-border);
+    overflow: hidden; /* Important for child scrolling */
+}
+.chat-page-layout .page-header {
+    text-align: center;
+    border-bottom: 1px solid var(--c-border);
+    padding-bottom: var(--space-lg);
+    margin-bottom: var(--space-lg);
+}
+.chat-page-layout .page-title {
+    margin: 0;
+}
+.sidebar-header {
+    padding: var(--space-md);
+    border-bottom: 1px solid var(--c-border);
+}
+.sidebar-header h2 {
+    font-size: 1.2rem;
+    margin: 0;
+}
+.conversation-main {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+#chat-active-screen {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+#chat-active-screen.is-hidden {
+    display: none;
+}
+.conversation-header {
+    padding: var(--space-md);
+    border-bottom: 1px solid var(--c-border);
+    background-color: var(--c-bg);
+}
+.conversation-header h3 {
+    margin: 0;
+    font-size: 1.1rem;
+}
+.messages-container {
+    flex-grow: 1;
+    overflow-y: auto;
+    padding: var(--space-md);
+}
+.conversation-footer {
+    padding: var(--space-md);
+    border-top: 1px solid var(--c-border);
+    background-color: var(--c-bg);
+}
+.sidebar-list {
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
 /* [P] CTA Section */
 .cta-section {
   background-color: var(--c-dark);
@@ -1075,55 +1351,7 @@ a.list-item:hover {
   border-width: 0; /* Ensures the border fades too */
 }
 
-/* [JS] Mobile Navigation */
-.mobile-menu-btn i {
-  transition: transform 0.3s ease;
-}
-.mobile-menu-btn.is-active i {
-  transform: rotate(90deg);
-}
-
-@media (max-width: 768px) {
-  .nav-links {
-    display: none;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background-color: var(--c-surface);
-    flex-direction: column;
-    align-items: stretch;
-    padding: var(--space-md);
-    border-top: 1px solid var(--c-border);
-    box-shadow: var(--shadow-lg);
-    transform: translateY(-10px);
-    opacity: 0;
-    visibility: hidden;
-    transition: transform 0.3s ease, opacity 0.3s ease, visibility 0.3s ease;
-  }
-
-  .nav-links.is-active {
-    display: flex;
-    transform: translateY(0);
-    opacity: 1;
-    visibility: visible;
-  }
-
-  .nav-links a,
-  .nav-links .user-greeting {
-    padding: var(--space-md);
-    text-align: center;
-    border-bottom: 1px solid var(--c-border);
-  }
-  .nav-links .header-icon-group {
-    border: none;
-    padding: var(--space-md) 0;
-    margin: 0;
-    justify-content: center;
-    width: 100%;
-    border-bottom: 1px solid var(--c-border);
-  }
-}
+/* The old dropdown-style mobile navigation rules have been removed in favor of the superior slide-in panel implementation. */
 
 /* [C] Authentication Layout & Components */
 .auth-layout {
