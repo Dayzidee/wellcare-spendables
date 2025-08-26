@@ -335,12 +335,6 @@ a:hover {
   margin-left: var(--space-sm);
   padding-left: var(--space-lg);
 }
-.mobile-menu-btn {
-  display: none;
-}
-
-
-
 
 .app-footer {
   background: var(--c-dark);
