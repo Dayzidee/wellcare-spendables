@@ -1054,15 +1054,18 @@ def fix_account_numbers_command():
 
         
 
+# Add this new command to the end of app.py
 @app.cli.command("seed")
 def seed_command():
-    """Creates the admin user and initial accounts if they don't exist."""
+    """Creates the admin user and initial accounts if they don't already exist."""
     with app.app_context():
+        # Check if the admin user already exists
         if Customer.query.filter_by(username='admin').first():
-            print("Admin user already exists. Skipping.")
+            print("Admin user already exists. Skipping seed.")
             return
 
-        print("Creating admin user...")
+        # If the admin does not exist, create it
+        print("Admin user not found. Creating admin user...")
         admin_user = Customer(
             username='admin', 
             password_hash=generate_password_hash('admin123', method='pbkdf2:sha256'), 
@@ -1070,11 +1073,13 @@ def seed_command():
             account_tier='premier'
         )
         db.session.add(admin_user)
-        db.session.commit() # Commit to get user ID
+        db.session.commit() # Commit here to generate the admin_user.id
 
+        # Now create the accounts for the new admin
         for acc_type in ACCOUNT_TYPES:
             initial_balance = 50000.0 if acc_type == "Checking" else 250000.0
-            db.session.add(Account(account_type=acc_type, balance=initial_balance, owner=admin_user))
+            account = Account(account_type=acc_type, balance=initial_balance, owner=admin_user)
+            db.session.add(account)
         
         db.session.commit()
-        print("Admin user and accounts created.")
+        print("Admin user and initial accounts have been created successfully.")
