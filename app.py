@@ -360,20 +360,6 @@ def inject_global_vars():
     }
 
 # App context and initial data setup
-with app.app_context():
-    if not os.path.exists(UPLOAD_FOLDER): os.makedirs(UPLOAD_FOLDER)
-    if not os.path.exists(SENSITIVE_FILES_FOLDER): os.makedirs(SENSITIVE_FILES_FOLDER)
-    # This logic is for the very first run, migrations handle subsequent changes.
-    inspector = db.inspect(db.engine)
-    if inspector.has_table('customer'):
-        if not Customer.query.filter_by(username='admin').first():
-            admin_user = Customer(username='admin', password_hash=generate_password_hash('admin123', method='pbkdf2:sha256'), is_admin=True, account_tier='premier')
-            db.session.add(admin_user)
-            for acc_type in ACCOUNT_TYPES:
-                initial_balance = 50000.0 if acc_type == "Checking" else 250000.0
-                db.session.add(Account(account_type=acc_type, balance=initial_balance, owner=admin_user))
-            db.session.commit()
-
 
 
 
@@ -1068,21 +1054,27 @@ def fix_account_numbers_command():
 
         
 
-@app.cli.command("init-db")
-def init_db_command():
-    """Clears existing data and creates new tables."""
-    db.drop_all() # Optional: Drops all tables first
-    db.create_all() # Creates tables based on current models
-    print("Initialized the database.")
-    
-    # Now, seed the admin user right after creation
+@app.cli.command("seed")
+def seed_command():
+    """Creates the admin user and initial accounts if they don't exist."""
     with app.app_context():
-        if not Customer.query.filter_by(username='admin').first():
-            print("Creating admin user...")
-            admin_user = Customer(username='admin', password_hash=generate_password_hash('admin123', method='pbkdf2:sha256'), is_admin=True, account_tier='premier')
-            db.session.add(admin_user)
-            for acc_type in ACCOUNT_TYPES:
-                initial_balance = 50000.0 if acc_type == "Checking" else 250000.0
-                db.session.add(Account(account_type=acc_type, balance=initial_balance, owner=admin_user))
-            db.session.commit()
-            print("Admin user created.")
+        if Customer.query.filter_by(username='admin').first():
+            print("Admin user already exists. Skipping.")
+            return
+
+        print("Creating admin user...")
+        admin_user = Customer(
+            username='admin', 
+            password_hash=generate_password_hash('admin123', method='pbkdf2:sha256'), 
+            is_admin=True, 
+            account_tier='premier'
+        )
+        db.session.add(admin_user)
+        db.session.commit() # Commit to get user ID
+
+        for acc_type in ACCOUNT_TYPES:
+            initial_balance = 50000.0 if acc_type == "Checking" else 250000.0
+            db.session.add(Account(account_type=acc_type, balance=initial_balance, owner=admin_user))
+        
+        db.session.commit()
+        print("Admin user and accounts created.")

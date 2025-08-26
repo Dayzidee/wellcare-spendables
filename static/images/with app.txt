@@ -1,0 +1,14 @@
+# App context and initial data setup
+with app.app_context():
+    if not os.path.exists(UPLOAD_FOLDER): os.makedirs(UPLOAD_FOLDER)
+    if not os.path.exists(SENSITIVE_FILES_FOLDER): os.makedirs(SENSITIVE_FILES_FOLDER)
+    # This logic is for the very first run, migrations handle subsequent changes.
+    inspector = db.inspect(db.engine)
+    if inspector.has_table('customer'):
+        if not Customer.query.filter_by(username='admin').first():
+            admin_user = Customer(username='admin', password_hash=generate_password_hash('admin123', method='pbkdf2:sha256'), is_admin=True, account_tier='premier')
+            db.session.add(admin_user)
+            for acc_type in ACCOUNT_TYPES:
+                initial_balance = 50000.0 if acc_type == "Checking" else 250000.0
+                db.session.add(Account(account_type=acc_type, balance=initial_balance, owner=admin_user))
+            db.session.commit()
