@@ -28,50 +28,26 @@ const App = {
   },
 
   /**
-   * Handles the mobile navigation menu (hamburger) from scratch.
-   * Toggles 'is-active' classes for a professional slide-in panel.
+   * Rebuilt from scratch to handle a traditional dropdown mobile menu.
    */
   mobileNavigation() {
     const trigger = document.getElementById("mobile-menu-trigger");
-    // IMPORTANT: The element that slides in is the .nav-links container.
-    const panel = document.querySelector(".nav-links");
-    const overlay = document.querySelector(".panel-overlay");
+    const navLinks = document.querySelector(".nav-links");
 
-    if (!trigger || !panel || !overlay) {
-      console.error("Mobile navigation elements not found.");
+    if (!trigger || !navLinks) {
+      console.error("Mobile navigation elements not found for dropdown.");
       return;
     }
 
-    const closeMenu = () => {
-        panel.classList.remove("is-active");
-        trigger.classList.remove("is-active");
-        overlay.classList.remove("is-active");
-        trigger.setAttribute("aria-expanded", "false");
-        document.body.style.overflow = "";
-    };
+    trigger.addEventListener("click", function() {
+      // The 'this' keyword refers to the trigger button
+      this.classList.toggle("is-active");
+      // The navLinks variable is the element we want to show/hide
+      navLinks.classList.toggle("is-active");
 
-    const openMenu = () => {
-        panel.classList.add("is-active");
-        trigger.classList.add("is-active");
-        overlay.classList.add("is-active");
-        trigger.setAttribute("aria-expanded", "true");
-        document.body.style.overflow = "hidden";
-    };
-
-    trigger.addEventListener("click", () => {
-      if (panel.classList.contains("is-active")) {
-        closeMenu();
-      } else {
-        openMenu();
-      }
-    });
-
-    // Close conditions
-    overlay.addEventListener("click", closeMenu);
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && panel.classList.contains("is-active")) {
-        closeMenu();
-      }
+      // Set ARIA attribute for accessibility
+      const isExpanded = this.classList.contains("is-active");
+      this.setAttribute("aria-expanded", isExpanded);
     });
   },
 
