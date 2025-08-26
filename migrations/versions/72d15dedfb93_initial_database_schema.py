@@ -1,8 +1,8 @@
-"""Add _is_active status to Customer model.
+"""Initial database schema
 
-Revision ID: 5be8039774f2
+Revision ID: 72d15dedfb93
 Revises: 
-Create Date: 2025-08-26 18:49:19.145760
+Create Date: 2025-08-26 20:07:44.125021
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '5be8039774f2'
+revision = '72d15dedfb93'
 down_revision = None
 branch_labels = None
 depends_on = None
