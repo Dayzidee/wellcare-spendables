@@ -378,6 +378,231 @@ a:hover {
   margin: 0;
 }
 
+/* --- FIX for Button Color Specificity --- */
+/* This rule specifically targets any <a> tag that is also a button */
+a.btn {
+  color: inherit; /* Tells the link to inherit its color from the .btn-* class */
+}
+/* Be more specific for the secondary button inside the nav */
+.nav-links .btn-secondary {
+    color: var(--c-surface);
+}
+.nav-links .btn-secondary:hover {
+    color: var(--c-surface); /* Ensure hover color is also correct */
+}
+
+/* [C] Hamburger Menu Component */
+.hamburger-btn {
+  display: none; /* Hidden on desktop by default */
+  width: 44px;
+  height: 44px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: var(--space-sm);
+  z-index: 2010; /* Ensures it's on top of the overlay and panel */
+}
+.hamburger-btn span {
+  display: block;
+  width: 24px;
+  height: 3px;
+  background: var(--c-dark);
+  margin: 5px auto;
+  transition: all 0.3s cubic-bezier(0.645, 0.045, 0.355, 1);
+  border-radius: 3px;
+}
+/* Animation for when the menu is active */
+.hamburger-btn.is-active span:nth-child(1) {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+.hamburger-btn.is-active span:nth-child(2) {
+  opacity: 0;
+}
+.hamburger-btn.is-active span:nth-child(3) {
+  transform: rotate(-45deg) translate(6px, -6px);
+}
+
+
+/* [R] Responsive Navigation System */
+@media (max-width: 992px) {
+    /* Show hamburger on tablets and smaller */
+    .hamburger-btn {
+        display: block;
+    }
+    
+    /* The main navigation container becomes a slide-in panel */
+    .nav-links {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: min(400px, 90vw); /* Responsive width: max 400px or 90% of screen */
+        height: 100%;
+        background-color: var(--c-surface);
+        flex-direction: column;
+        align-items: flex-start; /* Left-align content */
+        padding: var(--space-2xl) var(--space-xl);
+        box-shadow: var(--shadow-lg);
+        border-left: 1px solid var(--c-border);
+        
+        /* Start off-screen */
+        transform: translateX(100%);
+        visibility: hidden;
+        transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), visibility 0.4s;
+        z-index: 2000; /* Below the hamburger, above the overlay */
+    }
+    
+    .nav-links.is-active {
+        transform: translateX(0);
+        visibility: visible;
+    }
+
+    /* Styling for links inside the mobile panel */
+    .nav-links a,
+    .nav-links .user-greeting {
+        padding: var(--space-md) 0;
+        text-align: left;
+        width: 100%;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: var(--c-dark);
+        border-bottom: 1px solid var(--c-border);
+    }
+    
+    .nav-links a:hover {
+        color: var(--c-accent);
+    }
+
+    /* Highlight the link for the current page */
+    .nav-links a.is-active-page {
+        color: var(--c-accent);
+        font-weight: 700;
+    }
+
+    .nav-links .header-icon-group {
+        border: none;
+        padding: var(--space-md) 0;
+        margin: var(--space-md) 0;
+        justify-content: flex-start;
+        width: 100%;
+        border-top: 1px solid var(--c-border);
+        border-bottom: 1px solid var(--c-border);
+        gap: var(--space-lg);
+    }
+    
+    /* Push the CTA/Logout button to the bottom of the panel */
+    .nav-links .btn {
+        margin-top: auto;
+        width: 100%;
+        text-align: center;
+        padding: var(--space-md) 0;
+        font-size: 1.1rem;
+    }
+}
+
+/* Add these styles to the bottom of your [R] Responsive Navigation System block */
+
+/* Hide the mobile-specific elements on desktop */
+.nav-panel-header, .header-icon-group-mobile {
+    display: none;
+}
+/* Show the desktop icons and hide the mobile-only version */
+.header-icon-group-desktop {
+    display: flex; /* This should match your existing .header-icon-group style */
+    gap: var(--space-sm);
+    border-left: 1px solid var(--c-border);
+    margin-left: var(--space-sm);
+    padding-left: var(--space-lg);
+}
+
+
+@media (max-width: 992px) {
+    /* Hide the desktop icons on mobile */
+    .header-icon-group-desktop {
+        display: none;
+    }
+    
+    /* Show the mobile elements in the panel */
+    .nav-panel-header, .header-icon-group-mobile {
+        display: block;
+        width: 100%;
+    }
+
+    .nav-panel-header {
+        padding-bottom: var(--space-md);
+        margin-bottom: var(--space-md);
+        border-bottom: 2px solid var(--c-border);
+    }
+    
+    .user-greeting {
+        font-size: 1rem;
+        font-weight: 500;
+        color: var(--c-text-secondary);
+    }
+
+    .header-icon-group-mobile {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0;
+        padding: var(--space-md) 0;
+        margin: 0;
+        border-top: 1px solid var(--c-border);
+        border-bottom: 1px solid var(--c-border);
+    }
+    
+    .header-icon-group-mobile .btn-icon {
+        width: 100%;
+        justify-content: flex-start;
+        gap: var(--space-md);
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--c-dark);
+        border-radius: var(--radius-md);
+        padding: var(--space-md);
+    }
+    
+    .header-icon-group-mobile .btn-icon:hover {
+        background-color: var(--c-bg);
+        color: var(--c-accent);
+    }
+    
+    .header-icon-group-mobile .btn-icon span {
+        display: inline; /* Show the text label */
+    }
+}
+
+/* Add these to your [C] Buttons section */
+.btn-warning {
+  background: var(--c-warning);
+  color: var(--c-surface);
+  border-color: var(--c-warning);
+}
+.btn-warning:hover {
+  background: hsl(var(--hue-warning), 90%, 40%); /* Darker warning color */
+  border-color: hsl(var(--hue-warning), 90%, 40%);
+}
+.btn-success { /* It's good to define this explicitly if we haven't */
+  background: var(--c-success);
+  color: var(--c-surface);
+  border-color: var(--c-success);
+}
+.btn-success:hover {
+  background: hsl(var(--hue-accent), 100%, 25%);
+  border-color: hsl(var(--hue-accent), 100%, 25%);
+}
+
+
+/* Add these to your [C] Status Badges section */
+.status-badge.status-active {
+  background-color: hsl(var(--hue-accent), 20%);
+  color: hsl(var(--hue-accent), 80%, 30%);
+}
+.status-badge.status-inactive {
+  background-color: hsl(var(--hue-silver), 20%);
+  color: hsl(var(--hue-silver), 40%, 40%);
+  text-decoration: line-through;
+}
+
 /* [C] Side Panels */
 .app-panel {
   position: fixed;

@@ -1,8 +1,8 @@
-"""Enforce unique chat session per user.
+"""Add _is_active status to Customer model.
 
-Revision ID: 8bc52a318131
+Revision ID: 5be8039774f2
 Revises: 
-Create Date: 2025-08-24 16:17:33.602842
+Create Date: 2025-08-26 18:49:19.145760
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '8bc52a318131'
+revision = '5be8039774f2'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -22,6 +22,7 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('username', sa.String(length=50), nullable=False),
     sa.Column('password_hash', sa.String(length=256), nullable=False),
+    sa.Column('_is_active', sa.Boolean(), nullable=False),
     sa.Column('email', sa.String(length=120), nullable=True),
     sa.Column('full_name', sa.String(length=100), nullable=True),
     sa.Column('phone_number', sa.String(length=20), nullable=True),

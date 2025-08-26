@@ -234,6 +234,7 @@ class Customer(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True, nullable=False, index=True)
     password_hash = db.Column(db.String(256), nullable=False)
+    _is_active = db.Column(db.Boolean, nullable=False, default=True)
     email = db.Column(db.String(120), unique=True, nullable=True)
     full_name = db.Column(db.String(100), nullable=True)
     phone_number = db.Column(db.String(20), nullable=True)
@@ -253,6 +254,10 @@ class Customer(UserMixin, db.Model):
     @property
     def is_premier(self):
         return self.account_tier == 'premier'
+    @property
+    def is_active(self):
+        return self._is_active
+
 
 class Account(db.Model):
     __tablename__ = 'account'
@@ -550,6 +555,11 @@ def login():
     if form.validate_on_submit():
         customer = Customer.query.filter_by(username=form.username.data).first()
         if customer and check_password_hash(customer.password_hash, form.password.data):
+
+            if not customer.is_active:
+                flash('This account has been deactivated. Please contact support.', 'error')
+                return redirect(url_for('login'))
+            
             login_user(customer)
             # On successful login, redirect to the dashboard. The 'next' page logic can be added later if needed.
             return redirect(url_for('dashboard'))
@@ -921,6 +931,36 @@ def admin_send_message(customer_id):
 
     flash(f"Message sent to {customer.username} successfully.", "success")
     return redirect(url_for('admin_edit_customer', customer_id=customer_id))
+
+@app.route('/admin/deactivate_customer/<int:customer_id>', methods=['POST'])
+@login_required
+def admin_deactivate_customer(customer_id):
+    if not current_user.is_admin:
+        flash("You do not have permission for this action.", "error")
+        return redirect(url_for('dashboard'))
+
+    if customer_id == current_user.id:
+        flash("You cannot deactivate your own admin account.", "error")
+        return redirect(url_for('admin'))
+        
+    customer = Customer.query.get_or_404(customer_id)
+    customer._is_active = False
+    db.session.commit()
+    flash(f"Customer '{customer.username}' has been deactivated.", "success")
+    return redirect(url_for('admin'))
+
+@app.route('/admin/activate_customer/<int:customer_id>', methods=['POST'])
+@login_required
+def admin_activate_customer(customer_id):
+    if not current_user.is_admin:
+        flash("You do not have permission for this action.", "error")
+        return redirect(url_for('dashboard'))
+        
+    customer = Customer.query.get_or_404(customer_id)
+    customer._is_active = True
+    db.session.commit()
+    flash(f"Customer '{customer.username}' has been activated.", "success")
+    return redirect(url_for('admin'))
 
 @app.route('/admin/download/<path:filename>')
 @login_required

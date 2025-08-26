@@ -49,44 +49,48 @@
         >
         <div class="nav-links">
           {% if current_user.is_authenticated %}
+
+           <!-- User Greeting for Mobile Panel -->
+        <div class="nav-panel-header">
+            <span class="user-greeting">Welcome, {{ current_user.username }}!</span>
+        </div>
+
           <a href="{{ url_for('dashboard') }}">Dashboard</a>
           <a href="{{ url_for('transfer') }}">Transfer Funds</a>
-          <div class="header-icon-group">
-            <button id="support-panel-trigger" class="btn-icon" title="Support">
-              <i class="fas fa-headset"></i>
-            </button>
-            <button
-              id="notifications-panel-trigger"
-              class="btn-icon"
-              title="Notifications"
-            >
-              <i class="fas fa-bell"></i>
-              {% if has_unread_notifications %}<span
-                class="notification-dot"
-              ></span
-              >{% endif %}
-            </button>
-            <button
-              id="settings-panel-trigger"
-              class="btn-icon"
-              title="Settings"
-            >
-              <i class="fas fa-cog"></i>
-            </button>
-          </div>
-          <a href="{{ url_for('logout') }}" class="btn btn-secondary">Logout</a>
-          {% else %}
-          <a href="{{ url_for('login') }}">Login</a>
-          <a href="{{ url_for('signup') }}" class="btn btn-primary"
-            ><i class="fas fa-rocket"></i> Get Started</a
-          >
-          {% endif %}
+
+        <!-- Icons for Mobile Panel -->
+<div class="header-icon-group-mobile">
+    <!-- 
+      FIX: The IDs now end with '-panel-trigger' so the existing
+      JavaScript selector can find them.
+    -->
+    <button id="support-panel-trigger" class="btn-icon" title="Support"><i class="fas fa-headset"></i><span>Support</span></button>
+    <button id="notifications-panel-trigger" class="btn-icon" title="Notifications"><i class="fas fa-bell"></i><span>Notifications</span></button>
+    <button id="settings-panel-trigger" class="btn-icon" title="Settings"><i class="fas fa-cog"></i><span>Settings</span></button>
+</div>
+
+        <!-- Logout Button (will be pushed to the bottom by CSS) -->
+        <a href="{{ url_for('logout') }}" class="btn btn-secondary">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+
+          <!-- This is the Desktop-only version of the icons -->
+        <div class="header-icon-group-desktop">
+            <button id="support-panel-trigger" class="btn-icon" title="Support"><i class="fas fa-headset"></i></button>
+            <button id="notifications-panel-trigger" class="btn-icon" title="Notifications"><i class="fas fa-bell"></i>{% if has_unread_notifications %}<span class="notification-dot"></span>{% endif %}</button>
+            <button id="settings-panel-trigger" class="btn-icon" title="Settings"><i class="fas fa-cog"></i></button>
         </div>
-        <button id="mobile-menu-trigger" class="hamburger-btn" aria-label="Open menu" aria-expanded="false">
-    <span></span>
-    <span></span>
-    <span></span>
-</button>
+    {% else %}
+        <a href="{{ url_for('login') }}">Login</a>
+        <a href="{{ url_for('signup') }}" class="btn btn-primary"><i class="fas fa-rocket"></i> Get Started</a>
+    {% endif %}
+</div>
+        <button class="hamburger-btn" id="mobile-menu-trigger" aria-label="Open menu" aria-expanded="false" aria-controls="nav-links">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+
       </nav>
     </header>
 
