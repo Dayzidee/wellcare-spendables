@@ -23,23 +23,23 @@ const App = {
     this.notificationHandler();
     this.virtualCard();
     this.liveChat();
-    this.deactivatedUserHandler();
+    this.deactivatedDashboardHandler();
 
     // Any other initializers can be added here
   },
 
-  deactivatedUserHandler() {
-    const isDeactivated = document.body.classList.contains('deactivated');
-    if (!isDeactivated) return;
+  deactivatedDashboardHandler() {
+    const dashboard = document.querySelector('.deactivated-dashboard');
+    if (!dashboard) return;
 
     const modal = document.getElementById('deactivated-modal');
     const closeBtn = document.getElementById('deactivated-modal-close');
 
     if (!modal || !closeBtn) return;
 
-    document.addEventListener('click', (e) => {
+    dashboard.addEventListener('click', (e) => {
       // Check if the click is on a disabled element, but not the close button itself
-      if (e.target.closest('button, a.btn, input, select, textarea') && !e.target.closest('#deactivated-modal-close')) {
+      if (e.target.closest('button, a.btn, input, select, textarea, a.list-item') && !e.target.closest('#deactivated-modal-close')) {
         e.preventDefault();
         e.stopPropagation();
         modal.classList.add('is-visible');

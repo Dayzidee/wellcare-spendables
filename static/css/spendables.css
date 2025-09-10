@@ -2203,20 +2203,21 @@ a.list-item:hover {
   flex-direction: column; /* Allow timestamp to sit below */
 }
 
-/* Deactivated user styles */
-.deactivated button,
-.deactivated .btn,
-.deactivated a.btn,
-.deactivated input,
-.deactivated select,
-.deactivated textarea {
-    pointer-events: none;
-    opacity: 0.5;
-    cursor: not-allowed;
+/* Deactivated dashboard styles */
+.deactivated-dashboard button,
+.deactivated-dashboard .btn,
+.deactivated-dashboard a.btn,
+.deactivated-dashboard input,
+.deactivated-dashboard select,
+.deactivated-dashboard textarea,
+.deactivated-dashboard a.list-item {
+    pointer-events: none !important;
+    opacity: 0.5 !important;
+    cursor: not-allowed !important;
 }
 
-.deactivated #deactivated-modal-close {
-    pointer-events: all;
-    opacity: 1;
-    cursor: pointer;
+.deactivated-dashboard #deactivated-modal-close {
+    pointer-events: all !important;
+    opacity: 1 !important;
+    cursor: pointer !important;
 }

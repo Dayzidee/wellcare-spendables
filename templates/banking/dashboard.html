@@ -1,5 +1,22 @@
 {% extends 'base.html' %} {% block title %}Dashboard{% endblock %} {% block
 content %}
+<div class="{% if is_deactivated %}deactivated-dashboard{% endif %}">
+    {% if is_deactivated %}
+    <div id="deactivated-modal" class="modal-overlay is-visible">
+        <div class="modal-dialog">
+            <div class="modal-header">
+                <h2><i class="fas fa-exclamation-triangle"></i> Account Deactivated</h2>
+            </div>
+            <div class="modal-body">
+                <p>Your account has been deactivated. You have read-only access.</p>
+                <p>Please contact customer support for further assistance.</p>
+            </div>
+            <div class="modal-footer">
+                <button id="deactivated-modal-close" class="btn btn-primary">Understood</button>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 <div class="section">
   <div class="container">
     <!-- ============================ -->
@@ -353,4 +370,5 @@ content %}
     }
   });
 </script>
+</div>
 {% endblock %}
