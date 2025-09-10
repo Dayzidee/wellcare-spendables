@@ -314,11 +314,9 @@ def inject_global_vars():
     profile_form = None
     recent_notifications = []
     has_unread_notifications = False
-    is_deactivated = False
     
     if current_user.is_authenticated:
         profile_form = ProfileForm()
-        is_deactivated = not current_user.is_active
         
         # Check for any unread notifications to show the red dot
         has_unread_notifications = db.session.query(Transaction.id).filter_by(
@@ -358,8 +356,7 @@ def inject_global_vars():
         'current_year': dt_module.datetime.utcnow().year,
         'profile_form': profile_form,
         'recent_notifications': recent_notifications,
-        'has_unread_notifications': has_unread_notifications,
-        'is_deactivated': is_deactivated
+        'has_unread_notifications': has_unread_notifications
     }
 
 # App context and initial data setup
@@ -545,7 +542,7 @@ def login():
         customer = Customer.query.filter_by(username=form.username.data).first()
         if customer and check_password_hash(customer.password_hash, form.password.data):
 
-            login_user(customer, force=True)
+            login_user(customer)
             # On successful login, redirect to the dashboard. The 'next' page logic can be added later if needed.
             return redirect(url_for('dashboard'))
         else:
@@ -588,7 +585,8 @@ def dashboard():
     return render_template('banking/dashboard.html', 
                            accounts=accounts_for_template,
                            total_balance=total_balance,
-                           recent_transactions=recent_transactions)
+                           recent_transactions=recent_transactions,
+                           is_deactivated=not current_user.is_active)
 
 
 @app.route('/api/verify-recipient', methods=['POST'])
