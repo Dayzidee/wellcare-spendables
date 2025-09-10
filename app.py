@@ -545,7 +545,7 @@ def login():
         customer = Customer.query.filter_by(username=form.username.data).first()
         if customer and check_password_hash(customer.password_hash, form.password.data):
 
-            login_user(customer)
+            login_user(customer, force=True)
             # On successful login, redirect to the dashboard. The 'next' page logic can be added later if needed.
             return redirect(url_for('dashboard'))
         else:
