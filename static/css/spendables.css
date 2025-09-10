@@ -2202,3 +2202,21 @@ a.list-item:hover {
 .chat-message.is-agent {
   flex-direction: column; /* Allow timestamp to sit below */
 }
+
+/* Deactivated user styles */
+.deactivated button,
+.deactivated .btn,
+.deactivated a.btn,
+.deactivated input,
+.deactivated select,
+.deactivated textarea {
+    pointer-events: none;
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.deactivated #deactivated-modal-close {
+    pointer-events: all;
+    opacity: 1;
+    cursor: pointer;
+}
