@@ -256,7 +256,7 @@ class Customer(UserMixin, db.Model):
         return self.account_tier == 'premier'
     @property
     def is_active(self):
-        return self._is_active
+        return True
 
 
 class Account(db.Model):
