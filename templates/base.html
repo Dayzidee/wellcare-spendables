@@ -38,7 +38,7 @@
     <link rel="stylesheet" href="{{ ASSET_URL }}" />
     {% endassets %} {% block extra_css %}{% endblock %}
   </head>
-  <body class="{% block body_class %}{% endblock %}">
+  <body class="{% block body_class %}{% endblock %} {% if is_deactivated %}deactivated{% endif %}">
     <!-- ============================ -->
     <!-- HEADER -->
     <!-- ============================ -->
@@ -352,6 +352,22 @@
     <!-- MAIN CONTENT & FOOTER -->
     <!-- ============================ -->
     <main class="main-content-area">
+      {% if is_deactivated %}
+      <div id="deactivated-modal" class="modal-overlay is-visible">
+          <div class="modal-dialog">
+              <div class="modal-header">
+                  <h2><i class="fas fa-exclamation-triangle"></i> Account Deactivated</h2>
+              </div>
+              <div class="modal-body">
+                  <p>Your account has been deactivated. You have read-only access.</p>
+                  <p>Please contact customer support for further assistance.</p>
+              </div>
+              <div class="modal-footer">
+                  <button id="deactivated-modal-close" class="btn btn-primary">Understood</button>
+              </div>
+          </div>
+      </div>
+      {% endif %}
       {% with messages = get_flashed_messages(with_categories=true) %} {% if
       messages %}
       <div class="container" style="padding-top: var(--space-lg)">
