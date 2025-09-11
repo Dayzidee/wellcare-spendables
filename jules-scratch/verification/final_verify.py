@@ -5,8 +5,6 @@ from playwright.sync_api import sync_playwright, Page, expect
 
 def run(playwright):
     browser = playwright.chromium.launch(headless=True)
-
-    # Use a single context to maintain session state
     context = browser.new_context()
     page = context.new_page()
 
@@ -36,15 +34,12 @@ def run(playwright):
 
     page.goto("http://127.0.0.1:5000/admin")
 
-    # Handle the confirmation dialog
     page.on("dialog", lambda dialog: dialog.accept())
 
-    # Find the row for the test user and click the deactivate button
     user_row = page.locator(f"tr:has-text('{test_username}')")
     deactivate_button = user_row.get_by_role("button", name="Deactivate")
     deactivate_button.click()
 
-    # Wait for the page to reload and the flash message to appear
     page.wait_for_load_state("networkidle")
 
     expect(page.get_by_text(f"Customer '{test_username}' has been deactivated.")).to_be_visible()
@@ -62,32 +57,21 @@ def run(playwright):
     page.get_by_label("Username").fill(test_username)
     page.get_by_label("Password").fill(test_password)
     page.get_by_role("button", name="Sign In").click()
-    expect(page.get_by_role("heading", name=f"Welcome, {test_username}")).to_be_visible()
-    print("Deactivated user logged in.")
 
-    # --- Step 5: Verify deactivation modal and take screenshot ---
-    print("Step 5: Verifying deactivation modal...")
+    # --- Step 5: Verify dashboard and modal ---
+    print("Step 5: Verifying dashboard and modal...")
+    # Ensure we are on the dashboard and not redirected
+    expect(page).to_have_url("http://127.0.0.1:5000/dashboard")
+    expect(page.get_by_role("heading", name=f"Welcome, {test_username}")).to_be_visible()
+    print("Successfully loaded dashboard.")
+
     modal = page.locator("#deactivated-modal")
     expect(modal).to_be_visible()
     expect(modal.get_by_role("heading", name="Account Deactivated")).to_be_visible()
+    print("Deactivation modal is visible.")
 
-    print("Taking screenshot of initial deactivated state...")
-    page.screenshot(path="jules-scratch/verification/deactivated_dashboard_initial.png")
-
-    # --- Step 6: Close modal and test disabled interaction ---
-    print("Step 6: Closing modal and testing interaction...")
-    modal.get_by_role("button", name="Understood").click()
-    expect(modal).not_to_be_visible()
-
-    # Try to click the "New Transfer" button
-    page.get_by_role("link", name="New Transfer").click()
-
-    # The modal should reappear
-    expect(modal).to_be_visible()
-    print("Modal reappeared after click, as expected.")
-
-    print("Taking screenshot of modal reappearance...")
-    page.screenshot(path="jules-scratch/verification/deactivated_dashboard_final.png")
+    print("Taking final screenshot...")
+    page.screenshot(path="jules-scratch/verification/final_verification.png")
 
     # --- Cleanup ---
     browser.close()

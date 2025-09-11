@@ -351,3 +351,6 @@ const App = {
 
 // Start the application once the DOM is ready
 document.addEventListener("DOMContentLoaded", () => App.init());
+
+// Call the deactivation handler separately to ensure it runs
+App.deactivatedDashboardHandler();

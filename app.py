@@ -97,8 +97,13 @@ if os.getenv('FLASK_ENV') == 'production':
 else:
     # Development configuration
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your-secret-key-1234567890')
-    db_path = os.path.join('/tmp', 'northsecure_bank.db')
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path
+    basedir = os.path.abspath(os.path.dirname(__file__))
+    DATABASE_URL = os.getenv('DATABASE_URL')
+    if DATABASE_URL and DATABASE_URL.startswith('postgres'):
+        app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
+    else:
+        db_path = os.path.join(basedir, 'northsecure_bank.db')
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + db_path
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -249,9 +254,6 @@ class Customer(UserMixin, db.Model):
     @property
     def is_premier(self):
         return self.account_tier == 'premier'
-    @property
-    def is_active(self):
-        return self._is_active
 
 
 class Account(db.Model):
@@ -537,8 +539,7 @@ def login():
         customer = Customer.query.filter_by(username=form.username.data).first()
         if customer and check_password_hash(customer.password_hash, form.password.data):
 
-            # Force login for deactivated users to allow them to see the message
-            login_user(customer, force=not customer.is_active)
+            login_user(customer)
             # On successful login, redirect to the dashboard. The 'next' page logic can be added later if needed.
             return redirect(url_for('dashboard'))
         else:
@@ -582,7 +583,7 @@ def dashboard():
                            accounts=accounts_for_template,
                            total_balance=total_balance,
                            recent_transactions=recent_transactions,
-                           is_deactivated=not current_user.is_active)
+                           is_deactivated=not current_user._is_active)
 
 
 @app.route('/api/verify-recipient', methods=['POST'])
