@@ -31,7 +31,7 @@
                 <strong>{{ customer.username }}</strong>
 
                  <!-- Status Indicator -->
-            {% if customer.is_active %}
+            {% if customer._is_active %}
                 <span class="status-badge status-active">Active</span>
             {% else %}
                 <span class="status-badge status-inactive">Inactive</span>
@@ -58,7 +58,7 @@
                 </a>
 
                 {% if customer.id != current_user.id %}
-                    {% if customer.is_active %}
+                    {% if customer._is_active %}
 
                 <form action="{{ url_for('admin_deactivate_customer', customer_id=customer.id) }}" method="POST" onsubmit="return confirm('Are you sure you want to DEACTIVATE this user?');">
                         <button type="submit" class="btn btn-warning btn-sm"><i class="fas fa-user-slash"></i> Deactivate</button>
