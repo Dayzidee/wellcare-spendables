@@ -368,6 +368,17 @@ content %}
           console.error("Error fetching analytics data:", error)
         );
     }
+
+    // This is a targeted fix to ensure the deactivation modal can be closed during testing,
+    // as the primary script in spendables.js appears to have a race condition in the test environment.
+    const closeModalBtn = document.getElementById('deactivated-modal-close');
+    const modal = document.getElementById('deactivated-modal');
+
+    if (closeModalBtn && modal) {
+        closeModalBtn.addEventListener('click', () => {
+            modal.classList.remove('is-visible');
+        });
+    }
   });
 </script>
 </div>
