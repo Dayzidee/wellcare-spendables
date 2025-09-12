@@ -13,8 +13,12 @@ document.addEventListener("DOMContentLoaded", () => {
         customerNameEl: document.getElementById("chat-active-customer-name"),
         chatInput: document.getElementById("admin-chat-input"),
         sendBtn: document.getElementById("admin-chat-send-btn"),
+        sidebarToggle: document.getElementById("sidebar-toggle"),
+        chatPageLayout: document.querySelector(".chat-page-layout"),
+        sidebarOverlay: document.querySelector(".sidebar-overlay"),
 
         init() {
+            if (!this.chatPageLayout) return; // Don't run if not on the chat page
             this.connectSocket();
             this.bindEvents();
 
@@ -63,6 +67,14 @@ document.addEventListener("DOMContentLoaded", () => {
                     this.sendMessage();
                 }
             });
+
+            this.sidebarToggle.addEventListener("click", () => {
+                this.chatPageLayout.classList.toggle("is-sidebar-open");
+            });
+
+            this.sidebarOverlay.addEventListener("click", () => {
+                this.chatPageLayout.classList.remove("is-sidebar-open");
+            });
         },
 
         loadSession(sessionElement) {
@@ -82,11 +94,19 @@ document.addEventListener("DOMContentLoaded", () => {
         },
 
         renderChatHistory(history) {
-            this.messagesContainer.innerHTML = "";
+            // Clear existing messages more safely
+            while (this.messagesContainer.firstChild) {
+                this.messagesContainer.removeChild(this.messagesContainer.firstChild);
+            }
+
             if (history.length === 0) {
-                this.messagesContainer.innerHTML = '<div class="chat-message is-system"><span>No messages in this session yet.</span></div>';
+                const systemMsg = document.createElement('div');
+                systemMsg.classList.add('chat-message', 'is-system');
+                systemMsg.innerHTML = '<span>No messages in this session yet.</span>';
+                this.messagesContainer.appendChild(systemMsg);
             } else {
                 history.forEach(msg => {
+                    // Note: addMessage is already safe as it appends
                     this.addMessage(msg.message_text, msg.sender_type, msg.timestamp);
                 });
             }
