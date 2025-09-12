@@ -80,15 +80,20 @@ const App = {
    * The old implementation is removed.
    */
   liveChat() {
-    const container = document.getElementById("chat-widget-container");
+    const container = document.getElementById("user-chat-widget-container");
     if (!container) return;
 
-    const toggleBtn = document.getElementById("chat-widget-toggle");
-    const chatWindow = document.getElementById("chat-window");
-    const closeBtn = document.getElementById("chat-close-btn");
-    const messagesContainer = document.getElementById("chat-messages");
-    const chatInput = document.getElementById("chat-input");
-    const sendBtn = document.getElementById("chat-send-btn");
+    const toggleBtn = document.getElementById("user-chat-widget-toggle");
+    const chatWindow = document.getElementById("user-chat-window");
+    const closeBtn = document.getElementById("user-chat-close-btn");
+    const messagesContainer = document.getElementById("user-chat-messages");
+    const chatInput = document.getElementById("user-chat-input");
+    const sendBtn = document.getElementById("user-chat-send-btn");
+
+    if (!toggleBtn || !chatWindow || !closeBtn || !messagesContainer || !chatInput || !sendBtn) {
+        console.error("One or more chat widget elements are missing.");
+        return;
+    }
 
     const socket = io();
 

@@ -11,8 +11,8 @@ document.addEventListener("DOMContentLoaded", () => {
         activeScreen: document.getElementById("chat-active-screen"),
         messagesContainer: document.getElementById("chat-messages"),
         customerNameEl: document.getElementById("chat-active-customer-name"),
-        chatInput: document.getElementById("chat-input"),
-        sendBtn: document.getElementById("chat-send-btn"),
+        chatInput: document.getElementById("admin-chat-input"),
+        sendBtn: document.getElementById("admin-chat-send-btn"),
 
         init() {
             this.connectSocket();

@@ -429,7 +429,7 @@ def handle_disconnect():
 def handle_send_message(data):
     """Handles messages sent FROM a customer TO an admin."""
     message_text = data.get('message')
-    if not message_text:
+    if not message_text or len(message_text) > 2000:
         return
 
     session = get_or_create_chat_session(customer_id=current_user.id)
@@ -454,7 +454,7 @@ def handle_agent_send_message(data):
 
     customer_id = data.get('customer_id')
     message_text = data.get('message')
-    if not customer_id or not message_text:
+    if not customer_id or not message_text or len(message_text) > 2000:
         return
 
     session = get_or_create_chat_session(customer_id=customer_id, agent_id=current_user.id)
