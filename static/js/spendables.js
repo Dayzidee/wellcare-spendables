@@ -80,15 +80,15 @@ const App = {
    * The old implementation is removed.
    */
   liveChat() {
-    const container = document.getElementById("user-chat-widget-container");
+    const container = document.getElementById("chat-widget-container");
     if (!container) return;
 
-    const toggleBtn = document.getElementById("user-chat-widget-toggle");
-    const chatWindow = document.getElementById("user-chat-window");
-    const closeBtn = document.getElementById("user-chat-close-btn");
-    const messagesContainer = document.getElementById("user-chat-messages");
-    const chatInput = document.getElementById("user-chat-input");
-    const sendBtn = document.getElementById("user-chat-send-btn");
+    const toggleBtn = document.getElementById("chat-widget-toggle");
+    const chatWindow = document.getElementById("chat-window");
+    const closeBtn = document.getElementById("chat-close-btn");
+    const messagesContainer = document.getElementById("chat-messages");
+    const chatInput = document.getElementById("chat-input");
+    const sendBtn = document.getElementById("chat-send-btn");
 
     if (!toggleBtn || !chatWindow || !closeBtn || !messagesContainer || !chatInput || !sendBtn) {
         console.error("One or more chat widget elements are missing.");
@@ -98,6 +98,7 @@ const App = {
     const socket = io();
 
     const addMessage = (message, sender, timestamp) => {
+      if (!messagesContainer) return;
       const msgDiv = document.createElement("div");
       msgDiv.classList.add("chat-message", `is-${sender}`);
 
@@ -148,9 +149,26 @@ const App = {
       }
     });
 
+    const charCounter = container.querySelector('.char-counter');
+    if (charCounter) {
+        chatInput.addEventListener('input', () => {
+            const len = chatInput.value.length;
+            const max = chatInput.maxLength;
+            charCounter.textContent = `${len} / ${max}`;
+            if (len > max) {
+                charCounter.classList.add('is-over-limit');
+                sendBtn.disabled = true;
+            } else {
+                charCounter.classList.remove('is-over-limit');
+                sendBtn.disabled = false;
+            }
+        });
+    }
+
     socket.on("connect", () => console.log("💬 Customer connected to chat server."));
 
     socket.on('receive_message', (data) => {
+        console.log('Received message:', data);
         if (data.sender_type === 'agent') {
             addMessage(data.message, 'agent', data.timestamp);
         }

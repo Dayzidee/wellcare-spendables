@@ -11,14 +11,14 @@ document.addEventListener("DOMContentLoaded", () => {
         activeScreen: document.getElementById("chat-active-screen"),
         messagesContainer: document.getElementById("chat-messages"),
         customerNameEl: document.getElementById("chat-active-customer-name"),
-        chatInput: document.getElementById("admin-chat-input"),
-        sendBtn: document.getElementById("admin-chat-send-btn"),
+        chatInput: document.getElementById("chat-input"),
+        sendBtn: document.getElementById("chat-send-btn"),
         sidebarToggle: document.getElementById("sidebar-toggle"),
         chatPageLayout: document.querySelector(".chat-page-layout"),
         sidebarOverlay: document.querySelector(".sidebar-overlay"),
 
         init() {
-            if (!this.chatPageLayout) return; // Don't run if not on the chat page
+            if (!this.chatPageLayout) return;
             this.connectSocket();
             this.bindEvents();
 
@@ -75,6 +75,22 @@ document.addEventListener("DOMContentLoaded", () => {
             this.sidebarOverlay.addEventListener("click", () => {
                 this.chatPageLayout.classList.remove("is-sidebar-open");
             });
+
+            const charCounter = this.chatPageLayout.querySelector('.char-counter');
+            if (charCounter) {
+                this.chatInput.addEventListener('input', () => {
+                    const len = this.chatInput.value.length;
+                    const max = this.chatInput.maxLength;
+                    charCounter.textContent = `${len} / ${max}`;
+                    if (len > max) {
+                        charCounter.classList.add('is-over-limit');
+                        this.sendBtn.disabled = true;
+                    } else {
+                        charCounter.classList.remove('is-over-limit');
+                        this.sendBtn.disabled = false;
+                    }
+                });
+            }
         },
 
         loadSession(sessionElement) {
@@ -94,19 +110,11 @@ document.addEventListener("DOMContentLoaded", () => {
         },
 
         renderChatHistory(history) {
-            // Clear existing messages more safely
-            while (this.messagesContainer.firstChild) {
-                this.messagesContainer.removeChild(this.messagesContainer.firstChild);
-            }
-
+            this.messagesContainer.innerHTML = "";
             if (history.length === 0) {
-                const systemMsg = document.createElement('div');
-                systemMsg.classList.add('chat-message', 'is-system');
-                systemMsg.innerHTML = '<span>No messages in this session yet.</span>';
-                this.messagesContainer.appendChild(systemMsg);
+                this.messagesContainer.innerHTML = '<div class="chat-message is-system"><span>No messages in this session yet.</span></div>';
             } else {
                 history.forEach(msg => {
-                    // Note: addMessage is already safe as it appends
                     this.addMessage(msg.message_text, msg.sender_type, msg.timestamp);
                 });
             }
