@@ -89,6 +89,7 @@ const App = {
     const messagesContainer = document.getElementById("chat-messages");
     const chatInput = document.getElementById("chat-input");
     const sendBtn = document.getElementById("chat-send-btn");
+    const charCounter = container.querySelector('.char-counter');
 
     if (!toggleBtn || !chatWindow || !closeBtn || !messagesContainer || !chatInput || !sendBtn) {
         console.error("One or more chat widget elements are missing.");
@@ -121,20 +122,19 @@ const App = {
         socket.emit("send_message", { message: message });
         addMessage(message, "user");
         chatInput.value = "";
+        if(charCounter) {
+            charCounter.textContent = `0 / ${chatInput.maxLength}`;
+            charCounter.classList.remove('is-over-limit');
+            sendBtn.disabled = false;
+        }
       }
     };
 
     const toggleChatWindow = (isOpen) => {
-      const currentlyOpen = chatWindow.classList.contains("is-open");
-      if (isOpen === currentlyOpen) return;
-
+      chatWindow.classList.toggle("is-open", isOpen);
+      toggleBtn.classList.toggle("is-active", isOpen);
       if (isOpen) {
-        chatWindow.classList.add("is-open");
-        toggleBtn.classList.add("is-active");
         socket.emit("request_history");
-      } else {
-        chatWindow.classList.remove("is-open");
-        toggleBtn.classList.remove("is-active");
       }
     };
 
@@ -143,39 +143,38 @@ const App = {
 
     sendBtn.addEventListener("click", sendMessage);
     chatInput.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
+      if (e.key === "Enter" && !e.shiftKey) {
         e.preventDefault();
         sendMessage();
       }
     });
 
-    const charCounter = container.querySelector('.char-counter');
     if (charCounter) {
         chatInput.addEventListener('input', () => {
             const len = chatInput.value.length;
             const max = chatInput.maxLength;
             charCounter.textContent = `${len} / ${max}`;
-            if (len > max) {
-                charCounter.classList.add('is-over-limit');
-                sendBtn.disabled = true;
-            } else {
-                charCounter.classList.remove('is-over-limit');
-                sendBtn.disabled = false;
-            }
+            const isOverLimit = len > max;
+            charCounter.classList.toggle('is-over-limit', isOverLimit);
+            sendBtn.disabled = isOverLimit;
         });
     }
 
     socket.on("connect", () => console.log("💬 Customer connected to chat server."));
 
     socket.on('receive_message', (data) => {
-        console.log('Received message:', data);
         if (data.sender_type === 'agent') {
             addMessage(data.message, 'agent', data.timestamp);
         }
     });
 
     socket.on('chat_history', (data) => {
-        messagesContainer.innerHTML = '<div class="chat-message is-system"><span>Welcome! An agent will be with you shortly.</span></div>';
+        messagesContainer.innerHTML = '';
+        const welcomeMessage = document.createElement('div');
+        welcomeMessage.classList.add('chat-message', 'is-system');
+        welcomeMessage.innerHTML = '<span>Welcome! An agent will be with you shortly.</span>';
+        messagesContainer.appendChild(welcomeMessage);
+
         data.history.forEach(msg => {
             addMessage(msg.message_text, msg.sender_type, msg.timestamp);
         });

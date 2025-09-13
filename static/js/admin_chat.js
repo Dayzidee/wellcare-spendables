@@ -16,6 +16,9 @@ document.addEventListener("DOMContentLoaded", () => {
         sidebarToggle: document.getElementById("sidebar-toggle"),
         chatPageLayout: document.querySelector(".chat-page-layout"),
         sidebarOverlay: document.querySelector(".sidebar-overlay"),
+        userDetailsToggle: document.getElementById("user-details-toggle"),
+        userDetailsPanel: document.getElementById("user-details-panel"),
+        userDetailsCloseBtn: document.getElementById("user-details-close-btn"),
 
         init() {
             if (!this.chatPageLayout) return;
@@ -68,27 +71,27 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             });
 
-            this.sidebarToggle.addEventListener("click", () => {
-                this.chatPageLayout.classList.toggle("is-sidebar-open");
-            });
+            if (this.sidebarToggle) {
+                this.sidebarToggle.addEventListener("click", () => {
+                    this.chatPageLayout.classList.toggle("is-sidebar-open");
+                });
+            }
 
-            this.sidebarOverlay.addEventListener("click", () => {
-                this.chatPageLayout.classList.remove("is-sidebar-open");
-            });
+            if (this.sidebarOverlay) {
+                this.sidebarOverlay.addEventListener("click", () => {
+                    this.chatPageLayout.classList.remove("is-sidebar-open");
+                });
+            }
 
-            const charCounter = this.chatPageLayout.querySelector('.char-counter');
-            if (charCounter) {
-                this.chatInput.addEventListener('input', () => {
-                    const len = this.chatInput.value.length;
-                    const max = this.chatInput.maxLength;
-                    charCounter.textContent = `${len} / ${max}`;
-                    if (len > max) {
-                        charCounter.classList.add('is-over-limit');
-                        this.sendBtn.disabled = true;
-                    } else {
-                        charCounter.classList.remove('is-over-limit');
-                        this.sendBtn.disabled = false;
-                    }
+            if (this.userDetailsToggle) {
+                this.userDetailsToggle.addEventListener("click", () => {
+                    this.chatPageLayout.classList.add("is-user-details-open");
+                });
+            }
+
+            if (this.userDetailsCloseBtn) {
+                this.userDetailsCloseBtn.addEventListener("click", () => {
+                    this.chatPageLayout.classList.remove("is-user-details-open");
                 });
             }
         },
@@ -107,6 +110,23 @@ document.addEventListener("DOMContentLoaded", () => {
             this.customerNameEl.textContent = sessionElement.querySelector(".list-item-title").textContent;
 
             this.socket.emit("request_history", { session_id: this.activeSessionId });
+            this.loadUserDetails(this.activeCustomerId);
+        },
+
+        loadUserDetails(customerId) {
+            fetch(`/api/user_details/${customerId}`)
+                .then(response => response.json())
+                .then(data => {
+                    const content = this.userDetailsPanel.querySelector('.panel-content');
+                    content.innerHTML = `
+                        <div><strong>Username:</strong> ${data.username}</div>
+                        <div><strong>Email:</strong> ${data.email}</div>
+                        <div><strong>Full Name:</strong> ${data.full_name}</div>
+                        <div><strong>Phone:</strong> ${data.phone_number}</div>
+                        <div><strong>Tier:</strong> ${data.account_tier}</div>
+                        <div><strong>Joined:</strong> ${data.date_joined}</div>
+                    `;
+                });
         },
 
         renderChatHistory(history) {

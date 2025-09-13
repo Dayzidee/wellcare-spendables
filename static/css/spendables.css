@@ -1337,24 +1337,15 @@ a.list-item:hover {
 }
 
 /* [C] Admin Chat Page */
-#conversations-modal .modal-dialog {
-    max-width: 450px;
-    width: 90%;
-    /* Allow it to take up more height */
-    height: 70vh;
-    display: flex;
-    flex-direction: column;
-}
-
-#conversations-modal .modal-body {
-    flex-grow: 1;
-    overflow-y: auto;
-    padding: 0;
-    margin: 0 calc(-1 * var(--space-lg));
-}
-
-.conversation-main {
-    height: calc(100vh - 250px);
+.admin-chat-container {
+    display: grid;
+    grid-template-columns: 320px 1fr; /* Sidebar and main content */
+    gap: var(--space-lg);
+    height: calc(85vh - 100px); /* Adjust height to fit viewport */
+    background-color: var(--c-surface);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--c-border);
+    overflow: hidden; /* Important for child scrolling */
 }
 .chat-page-layout .page-header {
     text-align: center;
@@ -1616,6 +1607,87 @@ a.list-item:hover {
   box-shadow: var(--shadow-sm);
   color: var(--c-accent);
   font-weight: 600;
+}
+
+/* New Toggleable Sidebar Styles */
+.chat-page-layout .page-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+#sidebar-toggle {
+    display: none; /* Hidden by default, shown in media query */
+}
+
+@media (max-width: 992px) {
+    #sidebar-toggle {
+        display: block;
+    }
+
+    .chat-sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        height: 100vh;
+        z-index: 1001;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease-in-out;
+        border-right: 1px solid var(--c-border);
+        box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        background-color: var(--c-surface); /* Ensure it has a background */
+    }
+
+    .chat-page-layout.is-sidebar-open .chat-sidebar {
+        transform: translateX(0);
+    }
+
+    .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(0,0,0,0.5);
+        z-index: 1000;
+    }
+
+    .chat-page-layout.is-sidebar-open .sidebar-overlay {
+        display: block;
+    }
+
+    .conversation-footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 50;
+        background-color: var(--c-surface);
+    }
+
+    .messages-container {
+        padding-bottom: 80px; /* Account for fixed input */
+    }
+
+    .user-details-panel {
+        position: fixed;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        height: 100vh;
+        z-index: 1001;
+        transform: translateX(100%);
+        transition: transform 0.3s ease-in-out;
+        border-left: 1px solid var(--c-border);
+        box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        background-color: var(--c-surface);
+    }
+
+    .chat-page-layout.is-user-details-open .user-details-panel {
+        transform: translateX(0);
+    }
 }
 .segmented-control input[type="radio"]:focus-visible + span {
   outline: 2px solid var(--c-accent);
@@ -2315,67 +2387,4 @@ a.list-item:hover {
     margin-top: var(--space-lg);
     border-top: none;
     padding: 0;
-}
-
-/* New Toggleable Sidebar Styles */
-.chat-page-layout .page-header {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-}
-
-#sidebar-toggle {
-    display: none; /* Hidden by default, shown in media query */
-}
-
-@media (max-width: 992px) {
-    #sidebar-toggle {
-        display: block;
-    }
-
-    .chat-sidebar {
-        position: fixed;
-        left: 0;
-        top: 0;
-        bottom: 0;
-        height: 100vh;
-        z-index: 1001;
-        transform: translateX(-100%);
-        transition: transform 0.3s ease-in-out;
-        border-right: 1px solid var(--c-border);
-        box-shadow: 0 0 20px rgba(0,0,0,0.1);
-        background-color: var(--c-surface); /* Ensure it has a background */
-    }
-
-    .chat-page-layout.is-sidebar-open .chat-sidebar {
-        transform: translateX(0);
-    }
-
-    .sidebar-overlay {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: rgba(0,0,0,0.5);
-        z-index: 1000;
-    }
-
-    .chat-page-layout.is-sidebar-open .sidebar-overlay {
-        display: block;
-    }
-}
-
-.char-counter {
-    display: block;
-    text-align: right;
-    font-size: 0.8rem;
-    color: var(--c-text-secondary);
-    margin-top: var(--space-sm);
-}
-
-.char-counter.is-over-limit {
-    color: var(--c-danger);
-    font-weight: 600;
 }

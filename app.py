@@ -463,12 +463,15 @@ def handle_agent_send_message(data):
     db.session.commit()
 
     # Emit the message directly to the customer's private room.
-    emit('receive_message', {
+    room = str(customer_id)
+    message_payload = {
         'message': new_message.message_text,
         'sender_type': 'agent',
         'session_id': session.id,
         'timestamp': new_message.timestamp.strftime('%I:%M %p')
-    }, to=str(customer_id))
+    }
+    emit('receive_message', message_payload, to=room)
+    print(f"Admin {current_user.id} sending message to customer {customer_id} in room {room}: {message_payload}")
 
 @socketio.on('request_history')
 @login_required
@@ -786,6 +789,23 @@ def spending_analytics():
         }]
     }
     return jsonify(data)
+
+@app.route('/api/user_details/<int:customer_id>')
+@login_required
+def get_user_details(customer_id):
+    if not current_user.is_admin:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    customer = Customer.query.get_or_404(customer_id)
+
+    return jsonify({
+        "username": customer.username,
+        "email": customer.email,
+        "full_name": customer.full_name,
+        "phone_number": customer.phone_number,
+        "account_tier": customer.account_tier,
+        "date_joined": customer.date_joined.strftime('%Y-%m-%d')
+    })
 
 @app.route('/api/financial-health')
 @login_required
