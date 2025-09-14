@@ -1876,7 +1876,7 @@ a.list-item:hover {
 .chat-widget {
     position: fixed !important;
     bottom: var(--space-lg) !important;
-    right: var(--space-lg) !important;
+    left: var(--space-lg) !important;
     z-index: 1050 !important;
     font-family: inherit;
 }
