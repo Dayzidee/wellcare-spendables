@@ -369,7 +369,7 @@
       {% endif %} {% endwith %} {% block content %}{% endblock %}
     </main>
 
-<!-- ============================ -->
+!-- ============================ -->
 <!-- LIVE CHAT WIDGET -->
 <!-- ============================ -->
 {% if current_user.is_authenticated %}
@@ -378,7 +378,7 @@
         <i class="fas fa-comment-dots icon-open"></i>
         <i class="fas fa-times icon-close"></i>
     </button>
-
+    
     <div class="chat-window" id="chatWindow">
         <div class="chat-header">
             <div class="chat-header-title">
@@ -389,19 +389,19 @@
                 <i class="fas fa-times"></i>
             </button>
         </div>
-
+        
         <div class="chat-messages" id="chatMessages">
             <div class="message system">
                 <div class="message-content">Welcome! An agent will be with you shortly.</div>
                 <div class="message-timestamp">Just now</div>
             </div>
         </div>
-
+        
         <div class="chat-input">
             <form class="chat-input-form" id="chatForm">
-                <textarea
-                    class="chat-input-field"
-                    id="chatInput"
+                <textarea 
+                    class="chat-input-field" 
+                    id="chatInput" 
                     placeholder="Type your message..."
                     rows="1"
                 ></textarea>
@@ -413,6 +413,7 @@
     </div>
 </div>
 {% endif %}
+
 
     <!-- ============================ -->
     <!-- FOOTER -->
