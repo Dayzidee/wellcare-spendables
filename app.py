@@ -254,9 +254,6 @@ class Customer(UserMixin, db.Model):
     @property
     def is_premier(self):
         return self.account_tier == 'premier'
-    @property
-    def is_active(self):
-        return self._is_active
 
 
 class Account(db.Model):
@@ -432,7 +429,7 @@ def handle_disconnect():
 def handle_send_message(data):
     """Handles messages sent FROM a customer TO an admin."""
     message_text = data.get('message')
-    if not message_text:
+    if not message_text or len(message_text) > 2000:
         return
 
     session = get_or_create_chat_session(customer_id=current_user.id)
@@ -457,7 +454,7 @@ def handle_agent_send_message(data):
 
     customer_id = data.get('customer_id')
     message_text = data.get('message')
-    if not customer_id or not message_text:
+    if not customer_id or not message_text or len(message_text) > 2000:
         return
 
     session = get_or_create_chat_session(customer_id=customer_id, agent_id=current_user.id)
@@ -466,12 +463,15 @@ def handle_agent_send_message(data):
     db.session.commit()
 
     # Emit the message directly to the customer's private room.
-    emit('receive_message', {
+    room = str(customer_id)
+    message_payload = {
         'message': new_message.message_text,
         'sender_type': 'agent',
         'session_id': session.id,
         'timestamp': new_message.timestamp.strftime('%I:%M %p')
-    }, to=str(customer_id))
+    }
+    emit('receive_message', message_payload, to=room)
+    print(f"Admin {current_user.id} sending message to customer {customer_id} in room {room}: {message_payload}")
 
 @socketio.on('request_history')
 @login_required
@@ -586,7 +586,7 @@ def dashboard():
                            accounts=accounts_for_template,
                            total_balance=total_balance,
                            recent_transactions=recent_transactions,
-                           is_deactivated=not current_user.is_active)
+                           is_deactivated=not current_user._is_active)
 
 
 @app.route('/api/verify-recipient', methods=['POST'])
@@ -789,6 +789,23 @@ def spending_analytics():
         }]
     }
     return jsonify(data)
+
+@app.route('/api/user_details/<int:customer_id>')
+@login_required
+def get_user_details(customer_id):
+    if not current_user.is_admin:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    customer = Customer.query.get_or_404(customer_id)
+
+    return jsonify({
+        "username": customer.username,
+        "email": customer.email,
+        "full_name": customer.full_name,
+        "phone_number": customer.phone_number,
+        "account_tier": customer.account_tier,
+        "date_joined": customer.date_joined.strftime('%Y-%m-%d')
+    })
 
 @app.route('/api/financial-health')
 @login_required

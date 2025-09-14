@@ -75,89 +75,193 @@ const App = {
     });
   },
 
-  /**
-   * This function is being rebuilt from scratch.
-   * The old implementation is removed.
-   */
-  liveChat() {
-    const container = document.getElementById("chat-widget-container");
-    if (!container) return;
+/**
+ * User Chat Widget - Completely rebuilt with modern patterns
+ */
+liveChat() {
+    const widget = document.querySelector('.chat-widget');
+    if (!widget) return;
 
-    const toggleBtn = document.getElementById("chat-widget-toggle");
-    const chatWindow = document.getElementById("chat-window");
-    const closeBtn = document.getElementById("chat-close-btn");
-    const messagesContainer = document.getElementById("chat-messages");
-    const chatInput = document.getElementById("chat-input");
-    const sendBtn = document.getElementById("chat-send-btn");
+    const toggle = document.getElementById('chatToggle');
+    const window = document.getElementById('chatWindow');
+    const closeBtn = document.getElementById('chatClose');
+    const messages = document.getElementById('chatMessages');
+    const form = document.getElementById('chatForm');
+    const input = document.getElementById('chatInput');
+    const sendBtn = document.getElementById('chatSend');
 
-    const socket = io();
+    if (!toggle || !window || !closeBtn || !messages || !form || !input || !sendBtn) {
+        console.error('Chat widget elements missing');
+        return;
+    }
 
-    const addMessage = (message, sender, timestamp) => {
-      const msgDiv = document.createElement("div");
-      msgDiv.classList.add("chat-message", `is-${sender}`);
+    // Initialize socket connection
+    let socket = null;
+    let isConnected = false;
+    let isOpen = false;
 
-      const msgSpan = document.createElement("span");
-      msgSpan.textContent = message;
-      msgDiv.appendChild(msgSpan);
+    try {
+        socket = io();
 
-      const timeSpan = document.createElement("span");
-      timeSpan.classList.add("timestamp");
-      timeSpan.textContent = timestamp || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      msgDiv.appendChild(timeSpan);
+        socket.on('connect', () => {
+            console.log('💬 Customer connected to chat server');
+            isConnected = true;
+            updateSendButtonState();
+        });
 
-      messagesContainer.appendChild(msgDiv);
-      messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    };
+        socket.on('disconnect', () => {
+            console.log('💬 Disconnected from chat server');
+            isConnected = false;
+            updateSendButtonState();
+            addSystemMessage('Connection lost. Trying to reconnect...');
+        });
 
-    const sendMessage = () => {
-      const message = chatInput.value.trim();
-      if (message) {
-        socket.emit("send_message", { message: message });
-        addMessage(message, "user");
-        chatInput.value = "";
-      }
-    };
+        socket.on('receive_message', (data) => {
+            if (data.sender_type === 'agent') {
+                addMessage(data.message, 'agent', data.timestamp);
+            }
+        });
 
-    const toggleChatWindow = (isOpen) => {
-      const currentlyOpen = chatWindow.classList.contains("is-open");
-      if (isOpen === currentlyOpen) return;
+        socket.on('chat_history', (data) => {
+            loadChatHistory(data.history);
+        });
 
-      if (isOpen) {
-        chatWindow.classList.add("is-open");
-        toggleBtn.classList.add("is-active");
-        socket.emit("request_history");
-      } else {
-        chatWindow.classList.remove("is-open");
-        toggleBtn.classList.remove("is-active");
-      }
-    };
+    } catch (error) {
+        console.error('Socket initialization failed:', error);
+        isConnected = false;
+        updateSendButtonState();
+    }
 
-    toggleBtn.addEventListener("click", () => toggleChatWindow(!chatWindow.classList.contains("is-open")));
-    closeBtn.addEventListener("click", () => toggleChatWindow(false));
+    // Event Listeners
+    toggle.addEventListener('click', () => toggleChat());
+    closeBtn.addEventListener('click', () => closeChat());
 
-    sendBtn.addEventListener("click", sendMessage);
-    chatInput.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
+    form.addEventListener('submit', (e) => {
         e.preventDefault();
         sendMessage();
-      }
     });
 
-    socket.on("connect", () => console.log("💬 Customer connected to chat server."));
-
-    socket.on('receive_message', (data) => {
-        if (data.sender_type === 'agent') {
-            addMessage(data.message, 'agent', data.timestamp);
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
         }
     });
 
-    socket.on('chat_history', (data) => {
-        messagesContainer.innerHTML = '<div class="chat-message is-system"><span>Welcome! An agent will be with you shortly.</span></div>';
-        data.history.forEach(msg => {
+    // Auto-resize textarea
+    input.addEventListener('input', () => {
+        input.style.height = 'auto';
+        input.style.height = Math.min(input.scrollHeight, 100) + 'px';
+    });
+
+    // Close on escape
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && isOpen) {
+            closeChat();
+        }
+    });
+
+    // Functions
+    function toggleChat() {
+        if (isOpen) {
+            closeChat();
+        } else {
+            openChat();
+        }
+    }
+
+    function openChat() {
+        isOpen = true;
+        toggle.classList.add('active');
+        window.classList.add('active');
+
+        // Focus input after animation
+        setTimeout(() => {
+            input.focus();
+        }, 300);
+
+        // Request chat history
+        if (socket && isConnected) {
+            socket.emit('request_history');
+        }
+    }
+
+    function closeChat() {
+        isOpen = false;
+        toggle.classList.remove('active');
+        window.classList.remove('active');
+    }
+
+    function sendMessage() {
+        const message = input.value.trim();
+        if (!message || !isConnected) return;
+
+        // Add message to UI immediately
+        addMessage(message, 'user');
+
+        // Send to server
+        socket.emit('send_message', { message: message });
+
+        // Clear input
+        input.value = '';
+        input.style.height = 'auto';
+        input.focus();
+    }
+
+    function addMessage(content, type, timestamp = null) {
+        const message = document.createElement('div');
+        message.className = `message ${type}`;
+
+        const messageContent = document.createElement('div');
+        messageContent.className = 'message-content';
+        messageContent.textContent = content;
+
+        const messageTime = document.createElement('div');
+        messageTime.className = 'message-timestamp';
+        messageTime.textContent = timestamp || formatTimestamp(new Date());
+
+        message.appendChild(messageContent);
+        message.appendChild(messageTime);
+
+        messages.appendChild(message);
+        scrollToBottom();
+    }
+
+    function addSystemMessage(content) {
+        addMessage(content, 'system');
+    }
+
+    function loadChatHistory(history) {
+        // Clear existing messages except system welcome
+        const systemMessages = messages.querySelectorAll('.message.system');
+        messages.innerHTML = '';
+
+        // Re-add system messages
+        systemMessages.forEach(msg => messages.appendChild(msg));
+
+        // Add history messages
+        history.forEach(msg => {
             addMessage(msg.message_text, msg.sender_type, msg.timestamp);
         });
-    });
-  },
+    }
+
+    function scrollToBottom() {
+        requestAnimationFrame(() => {
+            messages.scrollTop = messages.scrollHeight;
+        });
+    }
+
+    function formatTimestamp(date) {
+        return date.toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+
+    function updateSendButtonState() {
+        sendBtn.disabled = !isConnected;
+    }
+},
 
   /**
    * Handles virtual card display and interactions
@@ -351,3 +455,6 @@ const App = {
 
 // Start the application once the DOM is ready
 document.addEventListener("DOMContentLoaded", () => App.init());
+
+// Call the deactivation handler separately to ensure it runs
+App.deactivatedDashboardHandler();

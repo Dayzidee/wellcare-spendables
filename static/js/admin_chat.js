@@ -13,8 +13,15 @@ document.addEventListener("DOMContentLoaded", () => {
         customerNameEl: document.getElementById("chat-active-customer-name"),
         chatInput: document.getElementById("chat-input"),
         sendBtn: document.getElementById("chat-send-btn"),
+        sidebarToggle: document.getElementById("sidebar-toggle"),
+        chatPageLayout: document.querySelector(".chat-page-layout"),
+        sidebarOverlay: document.querySelector(".sidebar-overlay"),
+        userDetailsToggle: document.getElementById("user-details-toggle"),
+        userDetailsPanel: document.getElementById("user-details-panel"),
+        userDetailsCloseBtn: document.getElementById("user-details-close-btn"),
 
         init() {
+            if (!this.chatPageLayout) return;
             this.connectSocket();
             this.bindEvents();
 
@@ -63,6 +70,30 @@ document.addEventListener("DOMContentLoaded", () => {
                     this.sendMessage();
                 }
             });
+
+            if (this.sidebarToggle) {
+                this.sidebarToggle.addEventListener("click", () => {
+                    this.chatPageLayout.classList.toggle("is-sidebar-open");
+                });
+            }
+
+            if (this.sidebarOverlay) {
+                this.sidebarOverlay.addEventListener("click", () => {
+                    this.chatPageLayout.classList.remove("is-sidebar-open");
+                });
+            }
+
+            if (this.userDetailsToggle) {
+                this.userDetailsToggle.addEventListener("click", () => {
+                    this.chatPageLayout.classList.add("is-user-details-open");
+                });
+            }
+
+            if (this.userDetailsCloseBtn) {
+                this.userDetailsCloseBtn.addEventListener("click", () => {
+                    this.chatPageLayout.classList.remove("is-user-details-open");
+                });
+            }
         },
 
         loadSession(sessionElement) {
@@ -79,6 +110,23 @@ document.addEventListener("DOMContentLoaded", () => {
             this.customerNameEl.textContent = sessionElement.querySelector(".list-item-title").textContent;
 
             this.socket.emit("request_history", { session_id: this.activeSessionId });
+            this.loadUserDetails(this.activeCustomerId);
+        },
+
+        loadUserDetails(customerId) {
+            fetch(`/api/user_details/${customerId}`)
+                .then(response => response.json())
+                .then(data => {
+                    const content = this.userDetailsPanel.querySelector('.panel-content');
+                    content.innerHTML = `
+                        <div><strong>Username:</strong> ${data.username}</div>
+                        <div><strong>Email:</strong> ${data.email}</div>
+                        <div><strong>Full Name:</strong> ${data.full_name}</div>
+                        <div><strong>Phone:</strong> ${data.phone_number}</div>
+                        <div><strong>Tier:</strong> ${data.account_tier}</div>
+                        <div><strong>Joined:</strong> ${data.date_joined}</div>
+                    `;
+                });
         },
 
         renderChatHistory(history) {
