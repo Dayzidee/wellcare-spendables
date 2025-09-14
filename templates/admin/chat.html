@@ -179,7 +179,9 @@
 
 
 {% block extra_css %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_chat.css') }}">
+    {% assets "admin_chat_css" %}
+        <link rel="stylesheet" href="{{ ASSET_URL }}" />
+    {% endassets %}
 {% endblock %}
 
 {% block extra_js %}
