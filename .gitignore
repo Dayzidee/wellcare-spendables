@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environment
+.env
+venv/
+env/
+
+# Logs
+*.log
+
+# Database
+*.db
+*.sqlite3
+
+# Flask / Assets
+.webassets-cache/
+static/gen/
+
+# OS / Editor
+.DS_Store
+.idea/
+.vscode/
