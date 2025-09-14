@@ -83,6 +83,14 @@ admin_chat_css_bundle = Bundle(
 )
 assets.register('admin_chat_css', admin_chat_css_bundle)
 
+admin_chat_js_bundle = Bundle(
+    'js/admin_chat.js',
+    filters='jsmin',
+    output='gen/admin_chat.js'
+)
+assets.register('admin_chat_js', admin_chat_js_bundle)
+
+
 # Load configuration based on environment
 if os.getenv('FLASK_ENV') == 'production':
     # Try to import production config
