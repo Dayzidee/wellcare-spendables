@@ -81,19 +81,17 @@ const App = {
  * User Chat Widget - Completely rebuilt with modern patterns
  */
 liveChat() {
-    const widgetContainer = document.getElementById('chat-widget-container');
-    if (!widgetContainer) return;
+    const widget = document.querySelector('.chat-widget');
+    if (!widget) return;
 
-    // Corrected IDs to match the HTML in dashboard.html
-    const toggle = document.getElementById('chat-widget-toggle');
-    const window = document.getElementById('chat-window');
-    const closeBtn = document.getElementById('chat-close-btn');
-    const messages = document.getElementById('chat-messages');
-    const input = document.getElementById('chat-input');
-    const sendBtn = document.getElementById('chat-send-btn');
+    // Corrected IDs to match the HTML in base.html
+    const toggle = document.getElementById('chatToggle');
+    const window = document.getElementById('chatWindow');
+    const closeBtn = document.getElementById('chatClose');
+    const messages = document.getElementById('chatMessages');
+    const input = document.getElementById('chatInput');
+    const sendBtn = document.getElementById('chatSend');
 
-    // The form element does not exist in the HTML, so we remove it.
-    // We will add a direct click listener to the send button.
     if (!toggle || !window || !closeBtn || !messages || !input || !sendBtn) {
         console.error('One or more chat widget elements are missing from the DOM.');
         return;
