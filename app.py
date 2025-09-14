@@ -63,13 +63,13 @@ assets = Environment(app)
 css_bundle = Bundle(
     'css/spendables.css',    # The source file
     filters='cssmin',        # The minification filter to use in production
-    output='gen/packed.css'  # The destination file for the minified version
+    output='gen/packed.%(version)s.css'  # The destination file for the minified version
 )
 
 js_bundle = Bundle(
     'js/spendables.js',      # The source file
     filters='jsmin',
-    output='gen/packed.js'
+    output='gen/packed.%(version)s.js'
 )
 
 # Register the bundles with the Flask-Assets extension
@@ -79,14 +79,14 @@ assets.register('js_all', js_bundle)
 admin_chat_css_bundle = Bundle(
     'css/admin_chat.css',
     filters='cssmin',
-    output='gen/admin_chat.css'
+    output='gen/admin_chat.%(version)s.css'
 )
 assets.register('admin_chat_css', admin_chat_css_bundle)
 
 admin_chat_js_bundle = Bundle(
     'js/admin_chat.js',
     filters='jsmin',
-    output='gen/admin_chat.js'
+    output='gen/admin_chat.%(version)s.js'
 )
 assets.register('admin_chat_js', admin_chat_js_bundle)
 
