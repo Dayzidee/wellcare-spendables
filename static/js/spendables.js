@@ -75,6 +75,8 @@ const App = {
     });
   },
 
+// Replace the liveChat() function in your spendables.js with this updated version
+
 /**
  * User Chat Widget - Completely rebuilt with modern patterns
  */

@@ -750,29 +750,3 @@
         opacity: 1;
     }
 }
-
-/* Additional updates from user */
-.container.admin-chat-container {
-    display: block;
-    grid-template-columns: none;
-    gap: 0;
-    height: auto;
-    background-color: transparent;
-    border-radius: 0;
-    border: none;
-    overflow: visible;
-}
-
-.admin-chat-layout {
-    display: grid !important;
-    grid-template-columns: 320px 1fr !important;
-    gap: var(--space-lg) !important;
-    height: calc(100vh - 200px) !important;
-    max-height: 800px !important;
-}
-
-@media (max-width: 992px) {
-    .admin-chat-layout {
-        grid-template-columns: 1fr !important;
-    }
-}
