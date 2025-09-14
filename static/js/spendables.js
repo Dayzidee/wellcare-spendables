@@ -81,19 +81,21 @@ const App = {
  * User Chat Widget - Completely rebuilt with modern patterns
  */
 liveChat() {
-    const widget = document.querySelector('.chat-widget');
-    if (!widget) return;
+    const widgetContainer = document.getElementById('chat-widget-container');
+    if (!widgetContainer) return;
 
-    const toggle = document.getElementById('chatToggle');
-    const window = document.getElementById('chatWindow');
-    const closeBtn = document.getElementById('chatClose');
-    const messages = document.getElementById('chatMessages');
-    const form = document.getElementById('chatForm');
-    const input = document.getElementById('chatInput');
-    const sendBtn = document.getElementById('chatSend');
+    // Corrected IDs to match the HTML in dashboard.html
+    const toggle = document.getElementById('chat-widget-toggle');
+    const window = document.getElementById('chat-window');
+    const closeBtn = document.getElementById('chat-close-btn');
+    const messages = document.getElementById('chat-messages');
+    const input = document.getElementById('chat-input');
+    const sendBtn = document.getElementById('chat-send-btn');
 
-    if (!toggle || !window || !closeBtn || !messages || !form || !input || !sendBtn) {
-        console.error('Chat widget elements missing');
+    // The form element does not exist in the HTML, so we remove it.
+    // We will add a direct click listener to the send button.
+    if (!toggle || !window || !closeBtn || !messages || !input || !sendBtn) {
+        console.error('One or more chat widget elements are missing from the DOM.');
         return;
     }
 
@@ -124,8 +126,15 @@ liveChat() {
             }
         });
 
+        let historyLoaded = false; // <-- ADD THIS FLAG
+
         socket.on('chat_history', (data) => {
-            loadChatHistory(data.history);
+            if (!historyLoaded) {
+                data.history.forEach(msg => {
+                    addMessage(msg.message_text, msg.sender_type, msg.timestamp);
+                });
+                historyLoaded = true;
+            }
         });
 
     } catch (error) {
@@ -138,10 +147,7 @@ liveChat() {
     toggle.addEventListener('click', () => toggleChat());
     closeBtn.addEventListener('click', () => closeChat());
 
-    form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        sendMessage();
-    });
+    sendBtn.addEventListener('click', sendMessage);
 
     input.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && !e.shiftKey) {
@@ -176,6 +182,11 @@ liveChat() {
         isOpen = true;
         toggle.classList.add('active');
         window.classList.add('active');
+
+        // Reset UI and state every time chat is opened for robustness
+        // messages.innerHTML = ''; // This was the source of the bug, clearing the chat unexpectedly.
+        addSystemMessage("Welcome! An agent will be with you shortly.");
+        historyLoaded = false;
 
         // Focus input after animation
         setTimeout(() => {
@@ -231,20 +242,6 @@ liveChat() {
 
     function addSystemMessage(content) {
         addMessage(content, 'system');
-    }
-
-    function loadChatHistory(history) {
-        // Clear existing messages except system welcome
-        const systemMessages = messages.querySelectorAll('.message.system');
-        messages.innerHTML = '';
-
-        // Re-add system messages
-        systemMessages.forEach(msg => messages.appendChild(msg));
-
-        // Add history messages
-        history.forEach(msg => {
-            addMessage(msg.message_text, msg.sender_type, msg.timestamp);
-        });
     }
 
     function scrollToBottom() {
