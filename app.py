@@ -457,7 +457,10 @@ def handle_send_message(data):
         'message': new_message.message_text,
         'sender_type': 'user',
         'session_id': session.id,
-        'timestamp': new_message.timestamp.strftime('%I:%M %p')
+        'timestamp': new_message.timestamp.strftime('%I:%M %p'),
+        # Add customer info so the admin UI can create a new conversation item if needed
+        'customer_id': current_user.id,
+        'customer_name': current_user.username
     }, to='admins')
 
 @socketio.on('agent_send_message')

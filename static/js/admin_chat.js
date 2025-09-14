@@ -160,6 +160,29 @@ class AdminChatDashboard {
         });
     }
 
+    createNewConversationElement(data) {
+        const conversationItem = document.createElement('div');
+        conversationItem.className = 'conversation-item';
+        conversationItem.dataset.sessionId = data.session_id;
+        conversationItem.dataset.customerId = data.customer_id;
+
+        conversationItem.innerHTML = `
+            <div class="conversation-avatar">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="conversation-details">
+                <div class="conversation-name">${data.customer_name}</div>
+                <div class="conversation-status">New</div>
+                <div class="conversation-preview">${data.message}</div>
+            </div>
+            <div class="conversation-meta">
+                <div class="conversation-time">${data.timestamp}</div>
+                <div class="notification-dot"></div>
+            </div>
+        `;
+        return conversationItem;
+    }
+
     connectSocket() {
         try {
             this.socket = io();
@@ -181,10 +204,34 @@ class AdminChatDashboard {
             });
 
             this.socket.on('receive_message', (data) => {
-                if (data.session_id == this.activeSessionId) {
-                    this.addMessage(data.message, data.sender_type, data.timestamp);
+                // Ignore messages sent by other agents for now
+                if (data.sender_type === 'agent') return;
+
+                const sessionElement = this.sessionList.querySelector(
+                    `[data-session-id="${data.session_id}"]`
+                );
+
+                if (sessionElement) {
+                    // Conversation already exists in the list
+                    if (this.activeSessionId == data.session_id) {
+                        this.addMessage(data.message, 'user', data.timestamp);
+                    } else {
+                        this.showNotificationDot(data.session_id);
+                    }
+                    // Optional: Update preview message
+                    const preview = sessionElement.querySelector('.conversation-preview');
+                    if(preview) preview.textContent = data.message;
                 } else {
-                    this.showNotificationDot(data.session_id);
+                    // This is a brand new conversation
+                    const newConversation = this.createNewConversationElement(data);
+
+                    // Remove the "empty" message if it exists
+                    const emptyState = this.sessionList.querySelector('.empty-conversations');
+                    if (emptyState) {
+                        emptyState.remove();
+                    }
+
+                    this.sessionList.prepend(newConversation);
                 }
             });
 
