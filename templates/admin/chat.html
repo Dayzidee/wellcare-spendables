@@ -8,78 +8,177 @@
 {% block title %}Admin Chat Support{% endblock %}
 
 {% block content %}
-<div class="chat-page-layout is-sidebar-open">
-    <!-- This header is now part of the main page, not the scrollable card -->
-    <header class="page-header container">
-        <button id="sidebar-toggle" class="btn btn-icon"><i class="fas fa-bars"></i></button>
-        <h1 class="page-title"><i class="fas fa-headset"></i> Support Chat Dashboard</h1>
+<div class="admin-chat-page">
+    <!-- Page Header -->
+    <header class="admin-chat-header container">
+        <button id="sidebar-toggle" class="btn-icon mobile-only">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="admin-chat-header-content">
+            <h1 class="admin-chat-title">
+                <i class="fas fa-headset"></i>
+                Support Chat Dashboard
+            </h1>
+            <p class="admin-chat-subtitle">Manage customer conversations</p>
+        </div>
     </header>
 
-    <div class="container admin-chat-container">
-        <div class="sidebar-overlay"></div>
-        <!-- Sidebar for conversation list -->
-        <aside class="chat-sidebar">
-            <header class="sidebar-header">
-                <h2>Active Conversations</h2>
-            </header>
-            <div id="session-list" class="list sidebar-list">
-                {% for session in sessions %}
-                <a href="#" class="list-item" data-session-id="{{ session.id }}" data-customer-id="{{ session.customer_id }}">
-                    <div class="list-item-content">
-                        <strong class="list-item-title">{{ session.customer.username }}</strong>
-                        <span class="list-item-subtitle">Status: {{ session.status }}</span>
+    <!-- Main Chat Layout -->
+    <div class="admin-chat-layout container">
+        <!-- Sidebar Overlay (Mobile) -->
+        <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+        <!-- Left Sidebar - Conversation List -->
+        <aside class="admin-chat-sidebar" id="chatSidebar">
+            <div class="sidebar-header">
+                <h2>
+                    <i class="fas fa-comments"></i>
+                    Active Conversations
+                </h2>
+                <button class="btn-icon mobile-only" id="sidebarClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="sidebar-content">
+                <div class="conversation-list" id="sessionList">
+                    {% for session in sessions %}
+                    <div class="conversation-item"
+                         data-session-id="{{ session.id }}"
+                         data-customer-id="{{ session.customer_id }}">
+                        <div class="conversation-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="conversation-details">
+                            <div class="conversation-name">{{ session.customer.username }}</div>
+                            <div class="conversation-status">{{ session.status }}</div>
+                            <div class="conversation-preview">Click to view messages</div>
+                        </div>
+                        <div class="conversation-meta">
+                            <div class="conversation-time">
+                                {{ session.created_at.strftime('%H:%M') if session.created_at else 'New' }}
+                            </div>
+                            <div class="notification-dot hidden"></div>
+                        </div>
                     </div>
-                    <span class="notification-dot is-hidden"></span>
-                </a>
-                {% else %}
-                <p class="empty-state">No active chats.</p>
-                {% endfor %}
+                    {% else %}
+                    <div class="empty-conversations">
+                        <i class="fas fa-comment-slash"></i>
+                        <p>No active conversations</p>
+                        <small>New chat sessions will appear here</small>
+                    </div>
+                    {% endfor %}
+                </div>
             </div>
         </aside>
 
-        <!-- Main conversation area -->
-        <main id="chat-conversation-area" class="conversation-main">
-            <!-- Welcome screen, shown by default -->
-            <div id="chat-welcome-screen" class="empty-state">
-                <i class="fas fa-comments"></i>
-                <strong>Select a conversation</strong>
-                <p>Choose a chat from the list on the left to see the message history.</p>
+        <!-- Main Chat Area -->
+        <main class="admin-chat-main">
+            <!-- Welcome Screen (Default) -->
+            <div class="chat-welcome-screen" id="chatWelcomeScreen">
+                <div class="welcome-content">
+                    <div class="welcome-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <h3>Select a Conversation</h3>
+                    <p>Choose a chat from the sidebar to view messages and respond to customers.</p>
+                </div>
             </div>
 
-            <!-- Active chat screen, hidden by default -->
-            <div id="chat-active-screen" class="is-hidden">
-                <header class="conversation-header">
-                    <h3 id="chat-active-customer-name"></h3>
-                    <button id="user-details-toggle" class="btn btn-icon"><i class="fas fa-info-circle"></i></button>
+            <!-- Active Chat Screen -->
+            <div class="chat-active-screen hidden" id="chatActiveScreen">
+                <!-- Chat Header -->
+                <header class="chat-conversation-header">
+                    <div class="conversation-info">
+                        <div class="conversation-user">
+                            <div class="user-avatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="user-details">
+                                <h3 id="activeCustomerName">Customer Name</h3>
+                                <span class="user-status online">Online</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="conversation-actions">
+                        <button class="btn-icon" id="userDetailsToggle" title="User Details">
+                            <i class="fas fa-info-circle"></i>
+                        </button>
+                        <button class="btn-icon mobile-only" id="closeChatMobile" title="Close">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
                 </header>
-                <!-- This is the only part that will scroll -->
-                <div id="chat-messages" class="messages-container">
-                    <!-- Messages will be injected here -->
+
+                <!-- Messages Container -->
+                <div class="chat-messages-container" id="chatMessages">
+                    <div class="messages-scroll-area">
+                        <!-- Messages will be dynamically inserted here -->
+                    </div>
                 </div>
+
+                <!-- Chat Input Area -->
+                <footer class="chat-input-section">
+                    <form class="chat-input-form" id="chatInputForm">
+                        <div class="input-wrapper">
+                            <textarea
+                                id="chatInput"
+                                class="chat-textarea"
+                                placeholder="Type your response..."
+                                rows="1"
+                                maxlength="500"
+                            ></textarea>
+                            <div class="input-actions">
+                                <span class="char-counter">0 / 500</span>
+                                <button type="submit" class="chat-send-btn" id="chatSendBtn">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </footer>
             </div>
-            <!-- The input is now a permanent footer -->
-            <footer class="conversation-footer">
-                <div class="input-group">
-                    <input type="text" id="chat-input" class="form-input" placeholder="Type your response to the user...">
-                    <button id="chat-send-btn" class="btn btn-primary">
-                        <i class="fas fa-paper-plane"></i> <span>Send</span>
-                    </button>
-                </div>
-            </footer>
         </main>
 
-        <!-- User Details Panel -->
-        <aside id="user-details-panel" class="user-details-panel">
-            <header class="panel-header">
-                <h2>User Details</h2>
-                <button id="user-details-close-btn" class="btn btn-icon"><i class="fas fa-times"></i></button>
-            </header>
-            <div class="panel-content">
-                <!-- User details will be displayed here -->
+        <!-- Right Panel - User Details (Desktop) -->
+        <aside class="user-details-panel hidden" id="userDetailsPanel">
+            <div class="panel-header">
+                <h3>
+                    <i class="fas fa-user-circle"></i>
+                    Customer Details
+                </h3>
+                <button class="btn-icon" id="userDetailsPanelClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="panel-content" id="userDetailsContent">
+                <div class="loading-state">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Loading customer details...</p>
+                </div>
             </div>
         </aside>
     </div>
 </div>
+
+<!-- User Details Modal (Mobile) -->
+<div class="modal-overlay hidden" id="userDetailsModal">
+    <div class="modal-dialog">
+        <div class="modal-header">
+            <h3>Customer Details</h3>
+            <button class="btn-icon" id="userDetailsModalClose">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="modal-content" id="userDetailsModalContent">
+            <!-- Content will be populated dynamically -->
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/admin_chat.css') }}">
 {% endblock %}
 
 {% block extra_js %}
