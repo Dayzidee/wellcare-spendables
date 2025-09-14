@@ -369,50 +369,50 @@
       {% endif %} {% endwith %} {% block content %}{% endblock %}
     </main>
 
-    <!-- Before </footer> -->
-    {% if current_user.is_authenticated %}
-    <!-- ============================ -->
-    <!-- LIVE CHAT WIDGET -->
-    <!-- ============================ -->
-    <div id="chat-widget-container">
-      <!-- The button that is always visible -->
-      <button id="chat-widget-toggle" class="chat-toggle-btn">
-        <i class="fas fa-comment-dots"></i>
-        <!-- Default icon -->
-        <i class="fas fa-times"></i>
-        <!-- Icon for when active -->
-      </button>
+<!-- ============================ -->
+<!-- LIVE CHAT WIDGET -->
+<!-- ============================ -->
+{% if current_user.is_authenticated %}
+<div class="chat-widget">
+    <button class="chat-toggle" id="chatToggle">
+        <i class="fas fa-comment-dots icon-open"></i>
+        <i class="fas fa-times icon-close"></i>
+    </button>
 
-      <!-- The chat window, hidden by default -->
-      <div id="chat-window" class="chat-window">
-        <header class="chat-header">
-          <h3><i class="fas fa-headset"></i> Support Chat</h3>
-          <button id="chat-close-btn" class="btn-icon">
-            <i class="fas fa-times"></i>
-          </button>
-        </header>
-
-        <div id="chat-messages" class="chat-messages">
-          <!-- Messages will be injected here by JavaScript -->
-          <div class="chat-message is-system">
-            <span>Welcome! An agent will be with you shortly.</span>
-          </div>
+    <div class="chat-window" id="chatWindow">
+        <div class="chat-header">
+            <div class="chat-header-title">
+                <i class="fas fa-headset"></i>
+                <span>Support Chat</span>
+            </div>
+            <button class="chat-header-close" id="chatClose">
+                <i class="fas fa-times"></i>
+            </button>
         </div>
 
-        <footer class="chat-input-area">
-          <input
-            type="text"
-            id="chat-input"
-            class="form-input"
-            placeholder="Type your message..."
-          />
-          <button id="chat-send-btn" class="btn btn-primary">
-            <i class="fas fa-paper-plane"></i>
-          </button>
-        </footer>
-      </div>
+        <div class="chat-messages" id="chatMessages">
+            <div class="message system">
+                <div class="message-content">Welcome! An agent will be with you shortly.</div>
+                <div class="message-timestamp">Just now</div>
+            </div>
+        </div>
+
+        <div class="chat-input">
+            <form class="chat-input-form" id="chatForm">
+                <textarea
+                    class="chat-input-field"
+                    id="chatInput"
+                    placeholder="Type your message..."
+                    rows="1"
+                ></textarea>
+                <button type="submit" class="chat-send" id="chatSend">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </form>
+        </div>
     </div>
-    {% endif %}
+</div>
+{% endif %}
 
     <!-- ============================ -->
     <!-- FOOTER -->
