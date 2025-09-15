@@ -797,16 +797,16 @@ def mark_notifications_as_read():
 @app.route('/api/spending-analytics')
 @login_required
 def spending_analytics():
-    # Placeholder data. In Phase 4, this will be a real database query.
-    data = { 
-        "labels": ["Groceries", "Utilities", "Transport", "Entertainment", "Shopping"],
+    # Per user request, this feature is disabled for all users for now.
+    # Always return empty data.
+    return jsonify({
+        "labels": [],
         "datasets": [{
             "label": "Spending by Category",
-            "data": [350.50, 180.25, 120.00, 250.75, 400.00],
-            "backgroundColor": ["#00A36C", "#FFD700", "#C0C0C0", "#2F4F4F", "#F5F5F5"]
+            "data": [],
+            "backgroundColor": []
         }]
-    }
-    return jsonify(data)
+    })
 
 @app.route('/api/user_details/<int:customer_id>')
 @login_required
